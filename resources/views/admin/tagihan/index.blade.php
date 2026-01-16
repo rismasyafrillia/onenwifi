@@ -5,10 +5,10 @@
     <div class="d-flex justify-content-between mb-3">
         <h3>Data Tagihan</h3>
 
-        <form action="{{ route('tagihan.generate') }}" method="POST"
+        <form action="{{ route('admin.tagihan.generate') }}" method="POST"
               onsubmit="return confirm('Generate tagihan bulan ini?')">
             @csrf
-            <button class="btn btn-success mb-3">
+            <button class="btn btn-success">
                 🔄 Generate Tagihan Bulanan
             </button>
         </form>
@@ -35,7 +35,7 @@
                 <td>{{ $t->pelanggan->nama ?? '-' }}</td>
                 <td>{{ $t->periode }}</td>
                 <td>Rp {{ number_format($t->nominal) }}</td>
-                <td>{{ $t->jatuh_tempo }}</td>
+                <td>{{ \Carbon\Carbon::parse($t->jatuh_tempo)->format('d-m-Y') }}</td>
                 <td>
                     <span class="badge 
                         @if($t->status == 'lunas') bg-success

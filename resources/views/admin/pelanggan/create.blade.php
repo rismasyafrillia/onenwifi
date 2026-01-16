@@ -4,7 +4,7 @@
 <div class="container">
     <h3>Tambah Pelanggan</h3>
 
-    <form action="{{ route('pelanggan.store') }}" method="POST">
+    <form action="{{ route('admin.pelanggan.store') }}" method="POST">
         @csrf
 
         <div class="mb-3">
@@ -28,7 +28,11 @@
                 <option value="">-- Pilih Paket --</option>
                 @foreach ($pakets as $paket)
                     <option value="{{ $paket->id }}">
-                        {{ $paket->nama_paket }} - Rp{{ number_format($paket->harga) }}
+                        {{ $paket->nama_paket }}
+                        @if(isset($paket->kecepatan))
+                            ({{ $paket->kecepatan }})
+                        @endif
+                        - Rp{{ number_format($paket->harga) }}
                     </option>
                 @endforeach
             </select>
@@ -43,7 +47,7 @@
         </div>
 
         <button class="btn btn-success">Simpan</button>
-        <a href="{{ route('pelanggan.index') }}" class="btn btn-secondary">Kembali</a>
+        <a href="{{ route('admin.pelanggan.index') }}" class="btn btn-secondary">Kembali</a>
     </form>
 </div>
 @endsection

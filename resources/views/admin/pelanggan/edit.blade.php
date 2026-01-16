@@ -4,12 +4,12 @@
 <div class="container">
     <h3 class="mb-4">Edit Pelanggan</h3>
 
-    <form action="{{ route('pelanggan.update', $pelanggan->id) }}" method="POST">
+    <form action="{{ route('admin.pelanggan.update', $pelanggan->id) }}" method="POST">
         @csrf
         @method('PUT')
 
         <div class="mb-3">
-            <label class="form-label">Nama Pelanggan</label>
+            <label>Nama</label>
             <input type="text"
                    name="nama"
                    class="form-control"
@@ -18,15 +18,14 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Alamat</label>
+            <label>Alamat</label>
             <textarea name="alamat"
                       class="form-control"
-                      rows="3"
                       required>{{ old('alamat', $pelanggan->alamat) }}</textarea>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Paket Internet</label>
+            <label>Paket</label>
             <select name="paket_id" class="form-select" required>
                 @foreach($pakets as $paket)
                     <option value="{{ $paket->id }}"
@@ -35,31 +34,24 @@
                     </option>
                 @endforeach
             </select>
-            <small class="text-muted">
-                Bisa digunakan untuk upgrade / downgrade paket
-            </small>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Status</label>
+            <label>Status</label>
             <select name="status" class="form-select" required>
-                <option value="aktif" {{ $pelanggan->status == 'aktif' ? 'selected' : '' }}>
+                <option value="aktif" {{ $pelanggan->status=='aktif'?'selected':'' }}>
                     Aktif
                 </option>
-                <option value="nonaktif" {{ $pelanggan->status == 'nonaktif' ? 'selected' : '' }}>
+                <option value="nonaktif" {{ $pelanggan->status=='nonaktif'?'selected':'' }}>
                     Nonaktif
                 </option>
             </select>
         </div>
 
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">
-                Update
-            </button>
-            <a href="{{ route('pelanggan.index') }}" class="btn btn-secondary">
-                Batal
-            </a>
-        </div>
+        <button class="btn btn-primary">Update</button>
+        <a href="{{ route('admin.pelanggan.index') }}" class="btn btn-secondary">
+            Batal
+        </a>
     </form>
 </div>
 @endsection

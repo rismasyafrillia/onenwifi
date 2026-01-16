@@ -28,11 +28,16 @@ class Pelanggan extends Model
 
     public function paket()
     {
-        return $this->belongsTo(Paket::class);
+        return $this->belongsTo(Paket::class, 'paket_id', 'id');
     }
 
     public function tagihans()
     {
         return $this->hasMany(Tagihan::class);
+    }
+
+    public function komplains()
+    {
+        return $this->hasMany(Komplain::class);
     }
 }

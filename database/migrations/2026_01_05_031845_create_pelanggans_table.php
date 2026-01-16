@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('pelanggan', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('nama');
             $table->text('alamat');
             $table->string('no_hp')->nullable();
-            $table->string('paket')->nullable();
+            $table->foreignId('paket_id')->nullable()->constrained('pakets');
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
         });
-
     }
 
     /**

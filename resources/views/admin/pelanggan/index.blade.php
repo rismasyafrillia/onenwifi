@@ -4,7 +4,7 @@
 <div class="container">
     <h3>Data Pelanggan</h3>
 
-    <a href="{{ route('pelanggan.create') }}" class="btn btn-primary mb-3">
+    <a href="{{ route('admin.pelanggan.create') }}" class="btn btn-primary mb-3">
         Tambah Pelanggan
     </a>
 
@@ -29,12 +29,12 @@
                 <td>{{ $p->paket->nama_paket ?? '-' }}</td>
                 <td>{{ ucfirst($p->status) }}</td>
                 <td>
-                <a href="{{ route('pelanggan.edit', $p->id) }}"
+                <a href="{{ route('admin.pelanggan.edit', $p->id) }}"
                    class="btn btn-warning btn-sm">
                     Edit
                 </a>
 
-                <form action="{{ route('pelanggan.destroy', $p->id) }}"
+                <form action="{{ route('admin.pelanggan.destroy', $p->id) }}"
                       method="POST"
                       style="display:inline;"
                       onsubmit="return confirm('Yakin hapus pelanggan ini? Akun login juga akan terhapus!')">
