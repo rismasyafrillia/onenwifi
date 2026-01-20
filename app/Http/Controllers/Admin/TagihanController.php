@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
 use App\Models\Pelanggan;
 use Carbon\Carbon;
@@ -11,6 +12,10 @@ class TagihanController extends Controller
 {
     public function index()
     {
+        Tagihan::expired()->update([
+            'status' => 'menunggak'
+        ]);
+
         $tagihan = Tagihan::with('pelanggan.paket')
             ->latest()
             ->get();
@@ -41,15 +46,15 @@ class TagihanController extends Controller
 
             // Hitung tunggakan dari tagihan sebelumnya yang belum lunas
             $tunggakan = Tagihan::where('pelanggan_id', $p->id)
-                ->whereIn('status', ['belum bayar', 'menunggak'])
-                ->whereDate('jatuh_tempo', '<', $now)
-                ->sum('nominal');
+            ->whereIn('status', ['belum bayar', 'menunggak'])
+            ->where('jatuh_tempo', '<', Carbon::today())
+            ->sum('nominal');
 
             // Update status tagihan lama yang lewat jatuh tempo
             Tagihan::where('pelanggan_id', $p->id)
-                ->where('status', 'belum bayar')
-                ->whereDate('jatuh_tempo', '<', $now)
-                ->update(['status' => 'menunggak']);
+            ->where('status', 'belum bayar')
+            ->where('jatuh_tempo', '<', Carbon::today())
+            ->update(['status' => 'menunggak']);
 
             // Skip jika tagihan bulan ini sudah ada
             if (Tagihan::where('pelanggan_id', $p->id)

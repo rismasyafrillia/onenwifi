@@ -1,34 +1,35 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('content')
-<div class="container">
-    <h3>Komplain Saya</h3>
+<h3 class="mb-3">Komplain Saya</h3>
 
-    <a href="{{ route('komplain.create') }}" class="btn btn-primary mb-3">
-        + Buat Komplain
-    </a>
+<a href="{{ route('user.komplain.create') }}" class="btn btn-warning mb-3">
+    + Buat Komplain
+</a>
 
-    @foreach($komplains as $k)
-        <div class="card mb-2">
-            <div class="card-body">
-                <h5>{{ $k->judul }}</h5>
-                <p>{{ $k->deskripsi }}</p>
-
-                <span class="badge
-                    @if($k->status=='baru') bg-warning
-                    @elseif($k->status=='diproses') bg-info
-                    @else bg-success
-                    @endif">
-                    {{ ucfirst($k->status) }}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Judul</th>
+            <th>Status</th>
+            <th>Tanggal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($komplains as $komplain)
+        <tr>
+            <td>{{ $komplain->judul }}</td>
+            <td>
+                <span class="badge bg-{{ 
+                    $komplain->status == 'baru' ? 'warning' :
+                    ($komplain->status == 'diproses' ? 'info' : 'success')
+                }}">
+                    {{ ucfirst($komplain->status) }}
                 </span>
-
-                @if($k->tanggapan_admin)
-                    <hr>
-                    <strong>Tanggapan Admin:</strong>
-                    <p>{{ $k->tanggapan_admin }}</p>
-                @endif
-            </div>
-        </div>
-    @endforeach
-</div>
+            </td>
+            <td>{{ $komplain->created_at->format('d-m-Y') }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 @endsection

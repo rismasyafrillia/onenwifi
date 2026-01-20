@@ -1,8 +1,20 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Log;
+use App\Models\Tagihan;
+use Carbon\Carbon;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::call(function () {
+
+    Log::info('SCHEDULER TAGIHAN JALAN', [
+        'waktu' => now()->toDateTimeString(),
+    ]);
+
+    Tagihan::where('status', 'belum bayar')
+        ->where('jatuh_tempo', '<=', Carbon::yesterday())
+        ->update([
+            'status' => 'menunggak'
+        ]);
+
+})->everyMinute(); // sementara untuk testing

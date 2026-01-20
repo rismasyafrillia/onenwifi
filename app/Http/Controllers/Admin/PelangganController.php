@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use App\Models\Paket;
 use App\Models\User;
@@ -70,7 +71,9 @@ class PelangganController extends Controller
             'status' => 'required|in:aktif,nonaktif'
         ]);
 
-        Pelanggan::findOrFail($id)->update($request->all());
+        Pelanggan::findOrFail($id)->update($request->only([
+            'nama', 'alamat', 'no_hp', 'paket_id', 'status'
+        ]));
 
         return redirect()
             ->route('admin.pelanggan.index')

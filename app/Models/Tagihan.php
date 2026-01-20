@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Tagihan extends Model
 {
@@ -22,5 +23,11 @@ class Tagihan extends Model
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class);
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'belum bayar')
+                    ->where('jatuh_tempo', '<', Carbon::today());
     }
 }
