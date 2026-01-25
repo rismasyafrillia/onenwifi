@@ -40,6 +40,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('komplain', [AdminKomplainController::class, 'index'])->name('komplain.index');
     Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])->name('komplain.show');
     Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])->name('komplain.update');
+
+    Route::get('laporan/export/pdf',
+        [LaporanController::class, 'exportPdf']
+    )->name('laporan.export.pdf');
 });
 
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -59,5 +60,40 @@ class LaporanController extends Controller
             'bulanData',
             'tagihans'
         ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        $query = Tagihan::query();
+
+        if ($bulan) {
+            $query->whereMonth('created_at', $bulan);
+        }
+
+        if ($tahun) {
+            $query->whereYear('created_at', $tahun);
+        }
+
+        $tagihans = $query->orderBy('created_at', 'desc')->get();
+
+        $totalTagihan = $tagihans->count();
+        $lunas        = $tagihans->where('status','lunas')->count();
+        $menunggak    = $tagihans->whereIn('status',['belum bayar','menunggak'])->count();
+        $totalNominal = $tagihans->where('status','lunas')->sum('nominal');
+
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact(
+            'tagihans',
+            'totalTagihan',
+            'lunas',
+            'menunggak',
+            'totalNominal',
+            'bulan',
+            'tahun'
+        ))->setPaper('A4', 'portrait');
+
+        return $pdf->download('laporan-pembayaran.pdf');
     }
 }

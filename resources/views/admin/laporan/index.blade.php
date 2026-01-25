@@ -47,6 +47,11 @@
         </div>
     </div>
 
+    <a href="{{ route('admin.laporan.export.pdf', request()->query()) }}"
+    class="btn btn-danger mb-3">
+        Export PDF
+    </a>
+    
     <!-- STATISTIK -->
     <div class="row g-3 mb-4">
 
