@@ -39,6 +39,7 @@ class PelangganController extends Controller
             'name'     => $request->nama,
             'email'    => $username . '@onenwifi.test',
             'password' => Hash::make('12345678'),
+            'role'     => 'user',
         ]);
 
         Pelanggan::create([

@@ -30,4 +30,9 @@ class Tagihan extends Model
         return $query->where('status', 'belum bayar')
                     ->where('jatuh_tempo', '<', Carbon::today());
     }
+
+    public function pembayarans()
+    {
+        return $this->hasMany(Pembayaran::class);
+    }
 }

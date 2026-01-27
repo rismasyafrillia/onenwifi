@@ -4,17 +4,16 @@
 <div class="container-fluid">
 
     <div class="mb-4">
-        <h3 class="fw-bold mb-1">Tagihan Saya</h3>
-        <p class="text-muted mb-0">Daftar tagihan layanan OneN WiFi Anda</p>
+        <h3 class="fw-bold mb-1">Riwayat Pembayaran</h3>
+        <p class="text-muted">Daftar pembayaran yang pernah Anda lakukan</p>
     </div>
 
-    @if($tagihans->isEmpty())
+    @if($pembayarans->isEmpty())
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
-                <i class="bi bi-receipt fs-1 text-muted mb-3"></i>
+                <i class="bi bi-clock-history fs-1 text-muted mb-3"></i>
                 <p class="text-muted mb-0">
-                    Belum ada tagihan untuk akun Anda.<br>
-                    Silakan hubungi admin jika ini merupakan kesalahan.
+                    Belum ada riwayat pembayaran.
                 </p>
             </div>
         </div>
@@ -24,28 +23,28 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>Tanggal</th>
                             <th>Periode</th>
                             <th>Nominal</th>
+                            <th>Metode</th>
                             <th>Status</th>
-                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($tagihans as $t)
+                        @foreach($pembayarans as $p)
                         <tr>
-                            <td class="fw-semibold">{{ $t->periode }}</td>
-                            <td>Rp {{ number_format($t->nominal) }}</td>
+                            <td>{{ $p->paid_at?->format('d-m-Y') }}</td>
+                            <td>{{ $p->tagihan->periode ?? '-' }}</td>
+                            <td class="fw-semibold">
+                                Rp {{ number_format($p->nominal) }}
+                            </td>
+                            <td>{{ strtoupper($p->metode ?? '-') }}</td>
                             <td>
                                 <span class="badge 
-                                    {{ $t->status == 'lunas' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($t->status) }}
+                                    {{ $p->status == 'success' ? 'bg-success' : 
+                                       ($p->status == 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    {{ strtoupper($p->status) }}
                                 </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ route('user.tagihan.show', $t->id) }}"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Detail
-                                </a>
                             </td>
                         </tr>
                         @endforeach

@@ -7,6 +7,7 @@ use App\Models\Tagihan;
 use Illuminate\Http\Request;
 use Midtrans\Snap;
 use Midtrans\Config;
+use App\Models\Pembayaran;
 
 class TagihanUserController extends Controller
 {
@@ -59,6 +60,15 @@ class TagihanUserController extends Controller
 
         $orderId = 'TAGIHAN-' . $tagihan->id . '-' . time();
 
+        Pembayaran::create([
+            'user_id'    => $user->id,
+            'tagihan_id' => $tagihan->id,
+            'order_id'   => $orderId,
+            'nominal'    => $tagihan->nominal,
+            'metode'     => 'midtrans',
+            'status'     => 'pending',
+        ]);
+
         $params = [
             'transaction_details' => [
                 'order_id' => $orderId,
@@ -75,5 +85,15 @@ class TagihanUserController extends Controller
         $snapToken = 'DUMMY-SNAP-TOKEN';
 
         return view('user.tagihan.bayar', compact('snapToken', 'tagihan'));
+    }
+
+    public function riwayat()
+    {
+        $pembayarans = Pembayaran::with('tagihan')
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('user.pembayaran.riwayat', compact('pembayarans'));
     }
 }

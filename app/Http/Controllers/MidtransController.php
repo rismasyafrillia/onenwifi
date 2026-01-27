@@ -9,21 +9,30 @@ class MidtransController extends Controller
 {
     public function callback(Request $request)
     {
-        // Ambil ID tagihan dari order_id
-        // Format: TAGIHAN-{id}-{timestamp}
-        $orderId = $request->order_id;
-        $parts = explode('-', $orderId);
-        $tagihanId = $parts[1] ?? null;
+        $notif = new \Midtrans\Notification();
 
-        if (!$tagihanId) {
-            return response()->json(['error' => 'Invalid order id'], 400);
+        $orderId = $notif->order_id;
+        $status  = $notif->transaction_status;
+
+        $pembayaran = Pembayaran::where('order_id', $orderId)->first();
+
+        if (!$pembayaran) return response()->json(['msg' => 'not found']);
+
+        if ($status == 'settlement') {
+
+            DB::transaction(function () use ($pembayaran) {
+
+                $pembayaran->update([
+                    'status' => 'success',
+                    'paid_at' => now()
+                ]);
+
+                $pembayaran->tagihan->update([
+                    'status' => 'lunas'
+                ]);
+            });
         }
 
-        if ($request->transaction_status === 'settlement') {
-            Tagihan::where('id', $tagihanId)
-                ->update(['status' => 'lunas']);
-        }
-
-        return response()->json(['status' => 'ok']);
+        return response()->json(['success' => true]);
     }
 }

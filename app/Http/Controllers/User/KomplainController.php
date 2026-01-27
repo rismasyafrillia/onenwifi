@@ -27,13 +27,20 @@ class KomplainController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pelanggan_id' => 'required|exists:pelanggan,id',
-            'judul'        => 'required|max:100',
-            'deskripsi'    => 'required'
+            'judul'     => 'required|max:100',
+            'deskripsi' => 'required'
         ]);
 
+        $user = auth()->user();
+
+        $pelanggan = Pelanggan::where('user_id', $user->id)->first();
+
+        if (!$pelanggan) {
+            return back()->with('error', 'Data pelanggan tidak ditemukan');
+        }
+
         Komplain::create([
-            'pelanggan_id' => $request->pelanggan_id,
+            'pelanggan_id' => $pelanggan->id,
             'judul'        => $request->judul,
             'deskripsi'    => $request->deskripsi,
             'status'       => 'baru'
@@ -42,5 +49,18 @@ class KomplainController extends Controller
         return redirect()
             ->route('user.komplain.index')
             ->with('success', 'Komplain berhasil dikirim');
+    }
+
+    public function show($id)
+    {
+        $user = auth()->user();
+
+        $komplain = Komplain::where('id', $id)
+            ->whereHas('pelanggan', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->firstOrFail();
+
+        return view('user.komplain.show', compact('komplain'));
     }
 }

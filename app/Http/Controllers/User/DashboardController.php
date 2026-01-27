@@ -34,4 +34,11 @@ class DashboardController extends Controller
             'totalKomplain'
         ));
     }
+
+    public function profile()
+    {
+        $pelanggan = Auth::user()->pelanggan;
+
+        return view('user.profile', compact('pelanggan'));
+    }
 }
