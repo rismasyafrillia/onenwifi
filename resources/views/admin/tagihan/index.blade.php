@@ -5,11 +5,14 @@
     <div class="d-flex justify-content-between mb-3">
         <h3>Data Tagihan</h3>
 
-        <form action="{{ route('admin.tagihan.generate') }}" method="POST"
+        <form action="{{ route('admin.tagihan.generate') }}"
+              method="POST"
               onsubmit="return confirm('Generate tagihan bulan ini?')">
             @csrf
+            @method('PUT')
+
             <button class="btn btn-success">
-                🔄 Generate Tagihan Bulanan
+                Generate Tagihan Bulanan
             </button>
         </form>
     </div>
@@ -30,7 +33,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($tagihan as $t)
+            @forelse($tagihan as $t)
             <tr>
                 <td>{{ $t->pelanggan->nama ?? '-' }}</td>
                 <td>{{ $t->periode }}</td>
@@ -56,7 +59,13 @@
                     @endif
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    Data tagihan belum tersedia
+                </td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 </div>

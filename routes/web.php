@@ -22,6 +22,10 @@ use App\Http\Controllers\MidtransController;
 */
 Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
 
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])
     ->name('login');
 
@@ -45,10 +49,11 @@ Route::prefix('admin')
 
         // PELANGGAN
         Route::resource('pelanggan', PelangganController::class);
+        Route::put('pelanggan/{id}/terpasang', [PelangganController::class, 'setTerpasang'])->name('pelanggan.terpasang');
 
         // TAGIHAN
         Route::get('tagihan', [TagihanController::class, 'index'])->name('tagihan.index');
-        Route::post('tagihan/generate', [TagihanController::class, 'generateBulanan'])->name('tagihan.generate');
+        Route::put('tagihan/generate', [TagihanController::class, 'generateBulanan'])->name('tagihan.generate');
         Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])->name('tagihan.edit');
         Route::put('tagihan/{id}', [TagihanController::class, 'update'])->name('tagihan.update');
 

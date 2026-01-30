@@ -18,6 +18,7 @@
                     <tr class="text-center">
                         <th>Nama</th>
                         <th>Alamat</th>
+                        <th>Daerah</th>
                         <th>No HP</th>
                         <th>Username</th>
                         <th>Paket</th>
@@ -31,6 +32,7 @@
                     <tr>
                         <td>{{ $p->nama }}</td>
                         <td>{{ $p->alamat }}</td>
+                        <td>{{ $p->daerah }}</td>
                         <td>{{ $p->no_hp }}</td>
                         <td>{{ $p->user->email ?? '-' }}</td>
                         <td>

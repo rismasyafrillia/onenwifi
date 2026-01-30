@@ -29,6 +29,11 @@
                         <textarea name="alamat" class="form-control" rows="3" required></textarea>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Daerah</label>
+                        <input type="text" name="daerah" class="form-control" required>
+                    </div>
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Paket Internet</label>
                         <select name="paket_id" class="form-select" required>
@@ -53,6 +58,14 @@
                         </select>
                     </div>
 
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Pembayaran Saat Pemasangan</label>
+                    <select name="bayar_awal" class="form-select" required>
+                        <option value="0">Belum Bayar</option>
+                        <option value="1">Bayar Cash</option>
+                    </select>
                 </div>
 
                 <div class="text-end">

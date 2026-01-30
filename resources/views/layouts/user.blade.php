@@ -18,13 +18,17 @@
     <style>
         body {
             background: #f5f6fa;
+            overflow-x: hidden;
         }
 
-        /* SIDEBAR */
+        /* ======================
+           SIDEBAR
+        ====================== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #0d6efd, #084298);
             color: #fff;
+            transition: all .3s ease;
         }
 
         .sidebar a {
@@ -47,19 +51,15 @@
             font-weight: 600;
         }
 
-        /* PROFILE CARD */
+        /* ======================
+           PROFILE CARD
+        ====================== */
         .profile-card {
             background: #fff;
             color: #000;
             border-radius: 12px;
             padding: 15px;
             transition: .2s ease-in-out;
-            cursor: pointer;
-        }
-
-        .profile-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
         }
 
         .avatar {
@@ -75,22 +75,100 @@
             font-size: 18px;
         }
 
-        /* CONTENT */
+        /* ======================
+           CONTENT
+        ====================== */
         .content {
             padding: 30px;
+            width: 100%;
         }
+
+        /* ======================
+           MOBILE MODE
+        ====================== */
+        @media (max-width: 768px) {
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                height: 100vh;
+                z-index: 1050;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .content {
+                padding: 15px !important;
+            }
+
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.4);
+                z-index: 1049;
+                display: none;
+            }
+
+            .overlay.show {
+                display: block;
+            }
+        }
+    </style>
+        <!-- PWA SPLASH SCREEN -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="OneN WiFi">
+
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+    <style>
+    /* Fallback splash untuk browser */
+    #splash-screen {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, #0d6efd, #084298);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    #splash-screen img {
+        width: 120px;
+        animation: zoom .8s ease-in-out;
+    }
+
+    @keyframes zoom {
+        from {
+            transform: scale(.8);
+            opacity: .5;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
     </style>
 </head>
 <body>
+<div id="splash-screen">
+    <img src="/icons/icon-512.png" alt="OneN WiFi">
+</div>
 
-<div class="d-flex min-vh-100">
+<!-- OVERLAY (HP) -->
+<div class="overlay" onclick="toggleSidebar()"></div>
+
+<div class="d-flex min-vh-100 position-relative">
 
     <!-- SIDEBAR -->
     <div class="sidebar p-3 d-flex flex-column">
 
         <h4 class="fw-bold mb-4">OneN WiFi</h4>
 
-        <!-- CARD PROFIL (KLIK) -->
+        <!-- PROFILE -->
         <a href="{{ route('user.profile') }}" class="mb-4">
             <div class="profile-card">
                 <div class="d-flex align-items-center gap-3">
@@ -102,7 +180,6 @@
                         <small class="text-muted">{{ auth()->user()->email }}</small>
                     </div>
                 </div>
-
                 <div class="mt-2 text-primary fw-semibold small">
                     Lihat Profil <i class="bi bi-arrow-right"></i>
                 </div>
@@ -148,20 +225,65 @@
     </div>
 
     <!-- CONTENT -->
-    <div class="flex-grow-1 content">
+    <div class="content">
+
+        <!-- BUTTON MENU (HP) -->
+        <button class="btn btn-primary d-md-none mb-3"
+                onclick="toggleSidebar()">
+            <i class="bi bi-list"></i> Menu
+        </button>
+
         @yield('content')
     </div>
 
 </div>
 
+<script>
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('show');
+    document.querySelector('.overlay').classList.toggle('show');
+}
+</script>
+
 <!-- SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/service-worker.js")
-            .then(reg => console.log("SW Registered:", reg.scope))
-            .catch(err => console.log("SW Failed:", err));
-    });
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("SW Registered"))
+    .catch(err => console.log("SW Failed", err));
+}
+</script>
+
+<script>
+window.addEventListener("load", function () {
+    setTimeout(() => {
+        const splash = document.getElementById("splash-screen");
+        if (splash) splash.remove();
+    }, 900);
+});
+</script>
+
+<!-- BUTTON TEST -->
+<button onclick="mintaIzin()" class="btn btn-primary">
+Aktifkan Notifikasi
+</button>
+
+<button onclick="kirimNotif()" class="btn btn-success">
+Test Notifikasi
+</button>
+
+<script>
+function mintaIzin() {
+  Notification.requestPermission().then(function(permission){
+    alert("Permission: " + permission);
+  });
+}
+
+function kirimNotif(){
+  new Notification("OneN WiFi", {
+    body: "Notifikasi berhasil 🎉",
+    icon: "/icons/icon-192.png"
+  });
 }
 </script>
 

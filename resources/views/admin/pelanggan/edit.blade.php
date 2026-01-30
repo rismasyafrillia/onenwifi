@@ -40,6 +40,12 @@
                                   required>{{ old('alamat', $pelanggan->alamat) }}</textarea>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Daerah</label>
+                        <input type="text" name="daerah" class="form-control"
+                            value="{{ $pelanggan->daerah }}" required>
+                    </div>
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Paket Internet</label>
                         <select name="paket_id" class="form-select" required>

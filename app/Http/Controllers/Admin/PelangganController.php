@@ -29,6 +29,7 @@ class PelangganController extends Controller
         $request->validate([
             'nama'     => 'required',
             'alamat'   => 'required',
+            'daerah' => 'required',
             'paket_id' => 'required|exists:pakets,id',
             'status'   => 'required|in:aktif,nonaktif'
         ]);
@@ -43,12 +44,16 @@ class PelangganController extends Controller
         ]);
 
         Pelanggan::create([
-            'user_id'  => $user->id,
-            'nama'     => $request->nama,
-            'alamat'   => $request->alamat,
-            'no_hp'    => $request->no_hp,
-            'paket_id' => $request->paket_id,
-            'status'   => $request->status
+            'user_id'           => $user->id,
+            'nama'              => $request->nama,
+            'alamat'            => $request->alamat,
+            'daerah'            => $request->daerah,
+            'no_hp'             => $request->no_hp,
+            'paket_id'          => $request->paket_id,
+            'status'            => 'aktif',
+            'status_pemasangan' => 'terpasang',
+            'bayar_awal'        => $request->bayar_awal,
+            'tanggal_aktif'     => now()
         ]);
 
         return redirect()
@@ -94,5 +99,19 @@ class PelangganController extends Controller
         return redirect()
             ->route('admin.pelanggan.index')
             ->with('success', 'Pelanggan dan akun login berhasil dihapus');
+    }
+    
+    public function setTerpasang($id)
+    {
+        $pelanggan = Pelanggan::findOrFail($id);
+
+        $pelanggan->update([
+            'status_pemasangan' => 'terpasang',
+            'tanggal_aktif'     => now(),
+        ]);
+
+        return redirect()
+            ->route('admin.pelanggan.index')
+            ->with('success', 'Status pemasangan berhasil diaktifkan');
     }
 }

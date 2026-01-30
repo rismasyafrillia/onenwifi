@@ -16,9 +16,13 @@ class Pelanggan extends Model
     'user_id',
     'nama',
     'alamat',
+    'daerah',
     'no_hp',
     'paket_id',
-    'status'
+    'status',
+    'status_pemasangan',
+    'bayar_awal',
+    'tanggal_aktif',
     ];
 
     public function user()

@@ -3,21 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tagihan;
-use App\Models\Pelanggan;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Tagihan;
 
 class TagihanController extends Controller
 {
     public function index()
     {
-        Tagihan::expired()->update([
-            'status' => 'menunggak'
-        ]);
+        Tagihan::prosesOtomatis();
 
         $tagihan = Tagihan::with('pelanggan.paket')
-            ->latest()
+            ->orderBy('jatuh_tempo', 'desc')
             ->get();
 
         return view('admin.tagihan.index', compact('tagihan'));
@@ -25,58 +21,11 @@ class TagihanController extends Controller
 
     public function generateBulanan()
     {
-        $now = Carbon::now();
-
-        // Format periode yang konsisten untuk DB
-        $periode = $now->format('m-Y'); // Contoh: '01-2026'
-
-        // Jatuh tempo 9 hari setelah awal bulan
-        $jatuhTempo = $now->copy()->startOfMonth()->addDays(19);
-
-        // Ambil semua pelanggan aktif yang punya paket
-        $pelanggans = Pelanggan::where('status', 'aktif')
-            ->whereNotNull('paket_id')
-            ->with('paket')
-            ->get();
-
-        foreach ($pelanggans as $p) {
-
-            // Pastikan paket ada dan harga valid
-            $hargaPaket = $p->paket->harga ?? 0;
-
-            // Hitung tunggakan dari tagihan sebelumnya yang belum lunas
-            $tunggakan = Tagihan::where('pelanggan_id', $p->id)
-            ->whereIn('status', ['belum bayar', 'menunggak'])
-            ->where('jatuh_tempo', '<', Carbon::today())
-            ->sum('nominal');
-
-            // Update status tagihan lama yang lewat jatuh tempo
-            Tagihan::where('pelanggan_id', $p->id)
-            ->where('status', 'belum bayar')
-            ->where('jatuh_tempo', '<', Carbon::today())
-            ->update(['status' => 'menunggak']);
-
-            // Skip jika tagihan bulan ini sudah ada
-            if (Tagihan::where('pelanggan_id', $p->id)
-                ->where('periode', $periode)
-                ->exists()
-            ) {
-                continue;
-            }
-
-            // Buat tagihan baru
-            Tagihan::create([
-                'pelanggan_id' => $p->id,
-                'periode'      => $periode,
-                'nominal'      => $hargaPaket + $tunggakan,
-                'jatuh_tempo'  => $jatuhTempo,
-                'status'       => 'belum bayar',
-            ]);
-        }
+        Tagihan::prosesOtomatis();
 
         return redirect()
             ->route('admin.tagihan.index')
-            ->with('success', 'Tagihan bulanan berhasil digenerate!');
+            ->with('success', 'Tagihan bulan ini berhasil digenerate');
     }
 
     public function edit($id)
@@ -84,8 +33,9 @@ class TagihanController extends Controller
         $tagihan = Tagihan::findOrFail($id);
 
         if ($tagihan->status === 'lunas') {
-            return redirect()->route('admin.tagihan.index')
-                ->with('error','Tagihan lunas tidak dapat diubah');
+            return redirect()
+                ->route('admin.tagihan.index')
+                ->with('error', 'Tagihan lunas tidak dapat diubah');
         }
 
         return view('admin.tagihan.edit', compact('tagihan'));
@@ -99,10 +49,14 @@ class TagihanController extends Controller
             'status'      => 'required|in:belum bayar,menunggak,lunas'
         ]);
 
-        Tagihan::findOrFail($id)->update($request->all());
+        Tagihan::findOrFail($id)->update([
+            'nominal'     => $request->nominal,
+            'jatuh_tempo' => $request->jatuh_tempo,
+            'status'      => $request->status,
+        ]);
 
         return redirect()
             ->route('admin.tagihan.index')
-            ->with('success','Tagihan berhasil diperbarui');
+            ->with('success', 'Tagihan berhasil diperbarui');
     }
 }

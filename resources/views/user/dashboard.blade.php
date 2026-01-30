@@ -13,6 +13,16 @@
         </p>
     </div>
 
+    <button onclick="mintaIzin()">Aktifkan Notifikasi</button>
+
+<script>
+function mintaIzin() {
+  Notification.requestPermission().then(function(permission){
+    alert("Permission: " + permission);
+  });
+}
+</script>
+
     <div class="row g-4">
 
         <!-- TOTAL TAGIHAN -->
