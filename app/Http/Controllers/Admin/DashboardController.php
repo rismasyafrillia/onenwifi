@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use App\Models\Tagihan;
 use App\Models\Komplain;
+use App\Models\Pembayaran;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -13,9 +14,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // ===============================
-        // KARTU RINGKASAN
-        // ===============================
         $totalPelanggan = Pelanggan::count();
 
         $tagihanBulanIni = Tagihan::whereMonth('created_at', now()->month)
@@ -27,9 +25,15 @@ class DashboardController extends Controller
 
         $komplainBaru = Komplain::where('status', 'baru')->count();
 
-        // ===============================
+        $totalPembayaran = Pembayaran::where('status', 'success')->sum('nominal');
+
+        // (opsional) total pembayaran bulan ini
+        $totalPembayaranBulanIni = Pembayaran::where('status', 'success')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->sum('nominal');
+
         // GRAFIK MENUNGGAK vs LUNAS PER BULAN
-        // ===============================
         $bulanLabel = [];
         $dataMenunggak = [];
         $dataLunas = [];
@@ -48,9 +52,7 @@ class DashboardController extends Controller
                 ->count();
         }
 
-        // ===============================
         // GRAFIK MENUNGGAK PER DAERAH
-        // ===============================
         $daerahLabel = [];
         $daerahMenunggak = [];
 
@@ -67,15 +69,14 @@ class DashboardController extends Controller
             $daerahMenunggak[] = $row->total;
         }
 
-        // ===============================
         // KIRIM KE VIEW
-        // ===============================
         return view('admin.dashboard', compact(
             'totalPelanggan',
             'tagihanBulanIni',
             'tagihanMenunggak',
             'tagihanLunas',
             'komplainBaru',
+            'totalPembayaranBulanIni',
             'bulanLabel',
             'dataMenunggak',
             'dataLunas',

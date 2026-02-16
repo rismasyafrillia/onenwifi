@@ -8,6 +8,7 @@ class Pembayaran extends Model
 {
     protected $fillable = [
         'user_id',
+        'pelanggan_id',
         'tagihan_id',
         'order_id',
         'nominal',

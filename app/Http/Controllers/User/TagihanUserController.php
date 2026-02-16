@@ -4,14 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Midtrans\Snap;
 use Midtrans\Config;
-use App\Models\Pembayaran;
+use Carbon\Carbon;
 
 class TagihanUserController extends Controller
 {
-    // LIST TAGIHAN USER
     public function index()
     {
         $user = auth()->user();
@@ -29,7 +29,6 @@ class TagihanUserController extends Controller
         return view('user.tagihan.index', compact('tagihans'));
     }
 
-    // DETAIL TAGIHAN
     public function show($id)
     {
         $user = auth()->user();
@@ -43,7 +42,6 @@ class TagihanUserController extends Controller
         return view('user.tagihan.show', compact('tagihan'));
     }
 
-    // BAYAR (MIDTRANS QRIS)
     public function bayar($id)
     {
         $user = auth()->user();
@@ -54,37 +52,51 @@ class TagihanUserController extends Controller
             })
             ->firstOrFail();
 
-        Config::$serverKey = config('services.midtrans.serverKey');
-        Config::$isProduction = false;
-        Config::$isSanitized = true;
+        if ($tagihan->status === 'lunas') {
+            return back()->with('error', 'Tagihan sudah lunas');
+        }
 
-        $orderId = 'TAGIHAN-' . $tagihan->id . '-' . time();
+        $periodeTagihan = Carbon::createFromFormat('m-Y', $tagihan->periode);
+        $bulanIni = Carbon::now()->startOfMonth();
+
+        if ($periodeTagihan->lt($bulanIni)) {
+            return back()->with(
+                'error',
+                'Tagihan bulan sebelumnya tidak dapat dibayar. Silakan hubungi admin.'
+            );
+        }
+
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $orderId = 'ORDER-' . $tagihan->id . '-' . time();
 
         Pembayaran::create([
-            'user_id'    => $user->id,
-            'tagihan_id' => $tagihan->id,
-            'order_id'   => $orderId,
-            'nominal'    => $tagihan->nominal,
-            'metode'     => 'midtrans',
-            'status'     => 'pending',
+            'user_id'      => $user->id,
+            'pelanggan_id' => $tagihan->pelanggan_id,
+            'tagihan_id'   => $tagihan->id,
+            'order_id'     => $orderId,
+            'nominal'      => $tagihan->nominal,
+            'metode'       => 'qris',
+            'status'       => 'pending',
         ]);
 
         $params = [
             'transaction_details' => [
-                'order_id' => $orderId,
+                'order_id'     => $orderId,
                 'gross_amount' => $tagihan->nominal,
             ],
             'customer_details' => [
                 'first_name' => $user->name,
-                'email' => $user->email,
+                'email'      => $user->email,
             ],
-            'enabled_payments' => ['qris'],
         ];
 
-        // $snapToken = Snap::getSnapToken($params);
-        $snapToken = 'DUMMY-SNAP-TOKEN';
+        $snapToken = Snap::getSnapToken($params);
 
-        return view('user.tagihan.bayar', compact('snapToken', 'tagihan'));
+        return view('user.tagihan.show', compact('tagihan', 'snapToken'));
     }
 
     public function riwayat()

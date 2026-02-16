@@ -273,19 +273,36 @@ Test Notifikasi
 </button>
 
 <script>
-function mintaIzin() {
-  Notification.requestPermission().then(function(permission){
-    alert("Permission: " + permission);
-  });
+async function subscribeUser() {
+    const reg = await navigator.serviceWorker.ready;
+
+    const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: "{{ env('VAPID_PUBLIC_KEY') }}"
+    });
+
+    await fetch("/save-subscription", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        body: JSON.stringify(sub)
+    });
+
+    console.log("Subscription saved");
 }
 
-function kirimNotif(){
-  new Notification("OneN WiFi", {
-    body: "Notifikasi berhasil 🎉",
-    icon: "/icons/icon-192.png"
-  });
+if ("serviceWorker" in navigator && "PushManager" in window) {
+    subscribeUser();
 }
 </script>
+
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}">
+</script>
+
+@stack('scripts')
 
 </body>
 </html>

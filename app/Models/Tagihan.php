@@ -11,8 +11,6 @@ class Tagihan extends Model
 {
     use HasFactory;
 
-    protected $table = 'tagihans';
-
     protected $fillable = [
         'pelanggan_id',
         'periode',
@@ -21,27 +19,22 @@ class Tagihan extends Model
         'jatuh_tempo'
     ];
 
-    /* ===============================
-       RELASI
-       =============================== */
-
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class);
     }
 
     /* ===============================
-       OPSI 3 – LOGIC OTOMATIS
+       PROSES OTOMATIS BULANAN
        =============================== */
 
     public static function prosesOtomatis()
     {
-        // 1️⃣ Ubah status tagihan lewat jatuh tempo → menunggak
+        // lewat jatuh tempo → menunggak
         self::where('status', 'belum bayar')
             ->whereDate('jatuh_tempo', '<', Carbon::today())
             ->update(['status' => 'menunggak']);
 
-        // 2️⃣ Generate tagihan bulan berjalan (jika perlu)
         self::generateBulananJikaPerlu();
     }
 
@@ -49,7 +42,7 @@ class Tagihan extends Model
     {
         $now        = Carbon::now();
         $periode    = $now->format('m-Y');
-        $jatuhTempo = $now->copy()->startOfMonth()->addDays(19); // tgl 20
+        $jatuhTempo = $now->copy()->startOfMonth()->addDays(19);
 
         $pelanggans = Pelanggan::where('status', 'aktif')
             ->where('status_pemasangan', 'terpasang')
@@ -59,13 +52,14 @@ class Tagihan extends Model
 
         foreach ($pelanggans as $p) {
 
+            // jangan buat dobel
             if (self::where('pelanggan_id', $p->id)
                 ->where('periode', $periode)
                 ->exists()) {
                 continue;
             }
 
-            // ✅ BULAN PERTAMA BAYAR CASH → BUAT TAGIHAN LUNAS
+            // bulan pertama bayar cash → langsung lunas
             if (
                 $p->bayar_awal == 1 &&
                 $p->tanggal_aktif &&
@@ -74,26 +68,18 @@ class Tagihan extends Model
                 self::create([
                     'pelanggan_id' => $p->id,
                     'periode'      => $periode,
-                    'nominal'      => $p->paket->harga ?? 0,
+                    'nominal'      => $p->paket->harga,
                     'jatuh_tempo'  => $jatuhTempo,
                     'status'       => 'lunas',
                 ]);
                 continue;
             }
 
-            // 🔢 Hitung tunggakan lama
-            $tunggakan = self::where('pelanggan_id', $p->id)
-                ->whereIn('status', ['belum bayar', 'menunggak'])
-                ->whereDate('jatuh_tempo', '<', Carbon::today())
-                ->sum('nominal');
-
-            $hargaPaket = $p->paket->harga ?? 0;
-
-            // ✅ Buat tagihan baru
+            // normal bulanan (TIDAK GABUNG TUNGGAKAN)
             self::create([
                 'pelanggan_id' => $p->id,
                 'periode'      => $periode,
-                'nominal'      => $hargaPaket + $tunggakan,
+                'nominal'      => $p->paket->harga,
                 'jatuh_tempo'  => $jatuhTempo,
                 'status'       => 'belum bayar',
             ]);

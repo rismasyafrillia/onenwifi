@@ -13,17 +13,14 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Total tagihan user
         $totalTagihan = Tagihan::whereHas('pelanggan', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->count();
 
-        // Tagihan belum bayar
         $tagihanBelumBayar = Tagihan::whereHas('pelanggan', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'belum bayar')->count();
 
-        // 🔥 FIX KOMPLAIN (INI PENTING)
         $totalKomplain = Komplain::whereHas('pelanggan', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->count();

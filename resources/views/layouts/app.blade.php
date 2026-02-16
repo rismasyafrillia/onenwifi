@@ -163,5 +163,31 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
+<script>
+async function subscribeUser() {
+    const reg = await navigator.serviceWorker.ready;
+
+    const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: "{{ env('VAPID_PUBLIC_KEY') }}"
+    });
+
+    await fetch("/save-subscription", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        body: JSON.stringify(sub)
+    });
+
+    console.log("Subscription saved");
+}
+
+if ("serviceWorker" in navigator && "PushManager" in window) {
+    subscribeUser();
+}
+</script>
+
 </body>
 </html>

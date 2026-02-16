@@ -34,11 +34,11 @@
                 </h4>
             </div>
 
-            @if($tagihan->status == 'belum bayar' || $tagihan->status == 'menunggak')
+            @if($tagihan->status != 'lunas')
                 <div class="d-flex justify-content-end">
                     <form action="{{ route('user.tagihan.bayar', $tagihan->id) }}" method="POST">
                         @csrf
-                        <button class="btn btn-warning text-dark">
+                        <button type="submit" class="btn btn-warning text-dark">
                             <i class="bi bi-credit-card me-1"></i> Bayar Sekarang
                         </button>
                     </form>
@@ -46,9 +46,9 @@
             @endif
 
             @if($tagihan->status == 'lunas')
-                <div class="alert alert-success d-flex align-items-center mt-3">
-                    <i class="bi bi-check-circle fs-4 me-2"></i>
-                    Tagihan ini sudah dibayar lunas.
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Tagihan ini sudah dibayar lunas
                 </div>
             @endif
 
@@ -57,3 +57,27 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+@if(isset($snapToken))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    snap.pay('{{ $snapToken }}', {
+        onSuccess: function () {
+            alert('Pembayaran berhasil');
+            window.location.reload();
+        },
+        onPending: function () {
+            alert('Menunggu pembayaran');
+        },
+        onError: function () {
+            alert('Pembayaran gagal');
+        }
+    });
+});
+</script>
+@endif
+@endpush

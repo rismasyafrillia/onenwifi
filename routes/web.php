@@ -13,18 +13,14 @@ use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\KomplainController as UserKomplainController;
 use App\Http\Controllers\User\TagihanUserController;
 
-use App\Http\Controllers\MidtransController;
-
-/*
-|--------------------------------------------------------------------------
-| PUBLIC (Tanpa Login)
-|--------------------------------------------------------------------------
-*/
-Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
+use App\Http\Controllers\PushController;
+use App\Http\Controllers\MidtransCallbackController;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])
     ->name('login');
@@ -34,11 +30,12 @@ Route::post('/login', [LoginController::class, 'login'])
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
-/*
-|--------------------------------------------------------------------------
-| ADMIN AREA
-|--------------------------------------------------------------------------
-*/
+
+Route::get('/vapid-public-key', [PushController::class, 'vapidPublicKey']);
+Route::post('/subscribe', [PushController::class, 'subscribe']);
+Route::get('/send-push', [PushController::class, 'send']);
+
+//admin
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'role:admin'])
@@ -47,32 +44,42 @@ Route::prefix('admin')
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
-        // PELANGGAN
         Route::resource('pelanggan', PelangganController::class);
-        Route::put('pelanggan/{id}/terpasang', [PelangganController::class, 'setTerpasang'])->name('pelanggan.terpasang');
+        Route::put('pelanggan/{id}/terpasang', [PelangganController::class, 'setTerpasang'])
+            ->name('pelanggan.terpasang');
 
-        // TAGIHAN
-        Route::get('tagihan', [TagihanController::class, 'index'])->name('tagihan.index');
-        Route::put('tagihan/generate', [TagihanController::class, 'generateBulanan'])->name('tagihan.generate');
-        Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])->name('tagihan.edit');
-        Route::put('tagihan/{id}', [TagihanController::class, 'update'])->name('tagihan.update');
+        Route::get('tagihan', [TagihanController::class, 'index'])
+            ->name('tagihan.index');
 
-        // LAPORAN
-        Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::put('tagihan/generate', [TagihanController::class, 'generateBulanan'])
+            ->name('tagihan.generate');
+
+        Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])
+            ->name('tagihan.edit');
+
+        Route::put('tagihan/{id}', [TagihanController::class, 'update'])
+            ->name('tagihan.update');
+
+        Route::post('tagihan/{id}/bayar-cash', [TagihanController::class, 'bayarCash'])
+            ->name('tagihan.bayarCash');
+
+        Route::get('laporan', [LaporanController::class, 'index'])
+            ->name('laporan.index');
+
         Route::get('laporan/export/pdf', [LaporanController::class, 'exportPdf'])
             ->name('laporan.export.pdf');
 
-        // KOMPLAIN
-        Route::get('komplain', [AdminKomplainController::class, 'index'])->name('komplain.index');
-        Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])->name('komplain.show');
-        Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])->name('komplain.update');
+        Route::get('komplain', [AdminKomplainController::class, 'index'])
+            ->name('komplain.index');
+
+        Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])
+            ->name('komplain.show');
+
+        Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])
+            ->name('komplain.update');
     });
 
-/*
-|--------------------------------------------------------------------------
-| USER AREA
-|--------------------------------------------------------------------------
-*/
+//user
 Route::prefix('user')
     ->name('user.')
     ->middleware(['auth', 'role:user'])
@@ -81,14 +88,12 @@ Route::prefix('user')
         Route::get('/dashboard', [UserDashboardController::class, 'index'])
             ->name('dashboard');
 
-        // KOMPLAIN
         Route::get('komplain', [UserKomplainController::class, 'index'])->name('komplain.index');
         Route::get('komplain/create', [UserKomplainController::class, 'create'])->name('komplain.create');
         Route::post('komplain', [UserKomplainController::class, 'store'])->name('komplain.store');
         Route::get('komplain/{id}', [UserKomplainController::class, 'show'])
              ->name('komplain.show');
 
-        // TAGIHAN
         Route::get('tagihan', [TagihanUserController::class, 'index'])->name('tagihan.index');
         Route::get('tagihan/{id}', [TagihanUserController::class, 'show'])->name('tagihan.show');
         Route::post('tagihan/{id}/bayar', [TagihanUserController::class, 'bayar'])->name('tagihan.bayar');
