@@ -11,6 +11,8 @@ use Midtrans\Config;
 use Carbon\Carbon;
 use Midtrans\Notification;
 use App\Services\WhatsAppService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class TagihanUserController extends Controller
 {
@@ -58,15 +60,15 @@ class TagihanUserController extends Controller
             return back()->with('error', 'Tagihan sudah lunas');
         }
 
-        $periodeTagihan = Carbon::createFromFormat('m-Y', $tagihan->periode);
-        $bulanIni = Carbon::now()->startOfMonth();
+        // $periodeTagihan = Carbon::createFromFormat('m-Y', $tagihan->periode);
+        // $bulanIni = Carbon::now()->startOfMonth();
 
-        if ($periodeTagihan->lt($bulanIni)) {
-            return back()->with(
-                'error',
-                'Tagihan bulan sebelumnya tidak dapat dibayar. Silakan hubungi admin.'
-            );
-        }
+        // if ($periodeTagihan->lt($bulanIni)) {
+        //     return back()->with(
+        //         'error',
+        //         'Tagihan bulan sebelumnya tidak dapat dibayar. Silakan hubungi admin.'
+        //     );
+        // }
 
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
@@ -157,13 +159,45 @@ class TagihanUserController extends Controller
     {
         $user = auth()->user();
 
-        $riwayat = \App\Models\Tagihan::whereHas('pelanggan', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })
-        ->where('status', 'lunas')
-        ->latest()
-        ->get();
+        $pembayarans = Pembayaran::with('tagihan')
+            ->where('user_id', $user->id)
+            ->where('status', 'success')
+            ->latest()
+            ->get();
 
-        return view('user.tagihan.riwayat', compact('riwayat'));
+        return view('user.pembayaran.index', compact('pembayarans'));
     }
+
+    public function detail($id)
+    {
+        $pembayaran = Pembayaran::with('tagihan')
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        return view('user.pembayaran.show', compact('pembayaran'));
+    }
+
+    public function cetak($id)
+{
+    $pembayaran = Pembayaran::with('tagihan','user')
+        ->where('user_id', auth()->id())
+        ->findOrFail($id);
+
+    $invoice = 'INV-'.date('Y').'-'.$pembayaran->id;
+
+    $verification = hash('sha256', 
+        $pembayaran->order_id.
+        $pembayaran->nominal.
+        $pembayaran->paid_at
+    );
+
+    $pdf = Pdf::loadView('user.pembayaran.pdf', compact(
+        'pembayaran',
+        'invoice',
+        'verification'
+    ))
+    ->setPaper('A4','portrait');
+
+    return $pdf->download('Struk-'.$pembayaran->order_id.'.pdf');
+}
 }

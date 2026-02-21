@@ -68,20 +68,14 @@
         </a>
     </div>
 
-    {{-- PEMBAYARAN --}}
-    <div class="col-md-3">
-        <div class="card dashboard-card bg-success text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <small>Pembayaran Bulan Ini</small>
-                    <h4 class="fw-bold mb-0">
-                        Rp {{ number_format($totalPembayaranBulanIni ?? 0) }}
-                    </h4>
-                </div>
-                <i class="bi bi-cash-coin fs-1 opacity-75"></i>
+    <a href="{{ route('admin.pembayaran.bulanIni') }}" class="text-decoration-none">
+        <div class="card shadow-sm border-0 dashboard-card bg-primary text-white">
+            <div class="card-body">
+                <h6>Pembayaran Bulan Ini</h6>
+                <h4>Rp {{ number_format($totalPembayaranBulanIni,0,',','.') }}</h4>
             </div>
         </div>
-    </div>
+    </a>
 
 </div>
 

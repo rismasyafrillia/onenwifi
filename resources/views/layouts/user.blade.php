@@ -21,9 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* ======================
-           SIDEBAR
-        ====================== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #0d6efd, #084298);
@@ -51,9 +48,6 @@
             font-weight: 600;
         }
 
-        /* ======================
-           PROFILE CARD
-        ====================== */
         .profile-card {
             background: #fff;
             color: #000;
@@ -75,17 +69,11 @@
             font-size: 18px;
         }
 
-        /* ======================
-           CONTENT
-        ====================== */
         .content {
             padding: 30px;
             width: 100%;
         }
 
-        /* ======================
-           MOBILE MODE
-        ====================== */
         @media (max-width: 768px) {
 
             .sidebar {
@@ -210,9 +198,10 @@
                 </a>
             </li>
 
-            <li>
-                <a href="{{ route('user.riwayat.index') }}">
-                    Riwayat Transaksi
+            <li class="nav-item">
+                <a href="{{ route('user.riwayat.index') }}"
+                class="nav-link {{ request()->routeIs('user.riwayat.*') ? 'active' : '' }}">
+                    <i class="bi bi-clock-history me-2"></i> Riwayat Transaksi
                 </a>
             </li>
 

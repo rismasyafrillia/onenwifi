@@ -41,42 +41,33 @@ Route::prefix('admin')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
 
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-            ->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        
+        Route::get('/pembayaran/bulan-ini', [App\Http\Controllers\Admin\DashboardController::class, 'pembayaranBulanIni'])->name('pembayaran.bulanIni');
 
         Route::resource('pelanggan', PelangganController::class);
-        Route::put('pelanggan/{id}/terpasang', [PelangganController::class, 'setTerpasang'])
-            ->name('pelanggan.terpasang');
+        Route::put('pelanggan/{id}/terpasang', [PelangganController::class, 'setTerpasang'])->name('pelanggan.terpasang');
 
-        Route::get('tagihan', [TagihanController::class, 'index'])
-            ->name('tagihan.index');
+        Route::get('tagihan', [TagihanController::class, 'index'])->name('tagihan.index');
+        Route::post('tagihan/generate', [TagihanController::class, 'generateBulanan'])->name('tagihan.generate');
+        Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])->name('tagihan.edit');
+        Route::put('tagihan/{id}', [TagihanController::class, 'update'])->name('tagihan.update');
+        Route::post('tagihan/{id}/bayar-cash', [TagihanController::class, 'bayarCash'])->name('tagihan.bayarCash');
 
-        Route::post('tagihan/generate', [TagihanController::class, 'generateBulanan'])
-            ->name('tagihan.generate');
+        Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('laporan/export/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
 
-        Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])
-            ->name('tagihan.edit');
+        Route::get('komplain', [AdminKomplainController::class, 'index'])->name('komplain.index');
+        Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])->name('komplain.show');
+        Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])->name('komplain.update');
 
-        Route::put('tagihan/{id}', [TagihanController::class, 'update'])
-            ->name('tagihan.update');
+        Route::post('/logout', function () {
+        Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
 
-        Route::post('tagihan/{id}/bayar-cash', [TagihanController::class, 'bayarCash'])
-            ->name('tagihan.bayarCash');
-
-        Route::get('laporan', [LaporanController::class, 'index'])
-            ->name('laporan.index');
-
-        Route::get('laporan/export/pdf', [LaporanController::class, 'exportPdf'])
-            ->name('laporan.export.pdf');
-
-        Route::get('komplain', [AdminKomplainController::class, 'index'])
-            ->name('komplain.index');
-
-        Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])
-            ->name('komplain.show');
-
-        Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])
-            ->name('komplain.update');
+        return redirect('/login');
+    })->name('logout');
     });
 
 //user
@@ -97,9 +88,10 @@ Route::prefix('user')
         Route::get('tagihan', [TagihanUserController::class, 'index'])->name('tagihan.index');
         Route::get('tagihan/{id}', [TagihanUserController::class, 'show'])->name('tagihan.show');
         Route::post('tagihan/{id}/bayar', [TagihanUserController::class, 'bayar'])->name('tagihan.bayar');
-        Route::get('riwayat', [TagihanUserController::class, 'riwayat'])
-             ->name('riwayat.index');
-    
+        Route::get('riwayat', [TagihanUserController::class, 'riwayat'])->name('riwayat.index');
+        Route::get('riwayat/{id}', [TagihanUserController::class, 'detail'])->name('riwayat.show');
+        Route::get('riwayat/{id}/cetak',[TagihanUserController::class, 'cetak'])->name('riwayat.cetak');
+
         Route::get('profile', [UserDashboardController::class, 'profile'])
              ->name('profile');
     });

@@ -28,6 +28,7 @@
                             <th>Nominal</th>
                             <th>Metode</th>
                             <th>Status</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,9 +43,15 @@
                             <td>
                                 <span class="badge 
                                     {{ $p->status == 'success' ? 'bg-success' : 
-                                       ($p->status == 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    ($p->status == 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
                                     {{ strtoupper($p->status) }}
                                 </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('user.riwayat.show', $p->id) }}" 
+                                class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-receipt"></i> Detail
+                                </a>
                             </td>
                         </tr>
                         @endforeach
@@ -53,6 +60,6 @@
             </div>
         </div>
     @endif
-
+    
 </div>
 @endsection

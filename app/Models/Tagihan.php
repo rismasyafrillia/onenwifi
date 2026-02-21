@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use App\Models\Pelanggan;
+use App\Models\Pembayaran;
 
 class Tagihan extends Model
 {
@@ -23,6 +24,16 @@ class Tagihan extends Model
     {
         return $this->belongsTo(Pelanggan::class);
     }
+    
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class, 'tagihan_id');
+    }
+
+    // public function pembayaran()
+    // {
+    //     return $this->hasMany(Pembayaran::class, 'tagihan_id');
+    // }
 
     /* ===============================
        UPDATE STATUS MENUNGGAK

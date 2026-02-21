@@ -19,7 +19,11 @@ class DashboardController extends Controller
 
         $tagihanBelumBayar = Tagihan::whereHas('pelanggan', function ($q) use ($userId) {
             $q->where('user_id', $userId);
-        })->where('status', 'belum bayar')->count();
+        })
+        ->whereDoesntHave('pembayaran', function ($q) {
+            $q->where('status', 'success');
+        })
+        ->count();
 
         $totalKomplain = Komplain::whereHas('pelanggan', function ($q) use ($userId) {
             $q->where('user_id', $userId);

@@ -138,9 +138,20 @@
                 Sistem Informasi Tagihan & Pembayaran WiFi
             </h6>
 
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-person-circle fs-5"></i>
-                <span class="fw-semibold">Admin</span>
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle fs-5"></i>
+                    <span class="fw-semibold">Admin</span>
+                </div>
+
+                <form action="{{ route('admin.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
+
             </div>
         </div>
 

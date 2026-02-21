@@ -17,6 +17,10 @@ class Pembayaran extends Model
         'paid_at',
     ];
 
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
+    
     // RELASI
     public function user()
     {

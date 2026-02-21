@@ -84,4 +84,16 @@ class DashboardController extends Controller
             'daerahMenunggak'
         ));
     }
+
+    public function pembayaranBulanIni()
+    {
+        $pembayarans = Pembayaran::with(['tagihan.pelanggan'])
+            ->where('status', 'success')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->latest('paid_at')
+            ->get();
+
+        return view('admin.pembayaran.bulan_ini', compact('pembayarans'));
+    }
 }

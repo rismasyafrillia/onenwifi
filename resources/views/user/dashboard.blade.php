@@ -13,8 +13,6 @@
         </p>
     </div>
 
-    <button onclick="mintaIzin()">Aktifkan Notifikasi</button>
-
 <script>
 function mintaIzin() {
   Notification.requestPermission().then(function(permission){
