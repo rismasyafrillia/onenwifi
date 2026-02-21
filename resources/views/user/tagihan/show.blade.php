@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
     snap.pay('{{ $snapToken }}', {
         onSuccess: function () {
             alert('Pembayaran berhasil');
-            window.location.reload();
+            window.location.href = "{{ route('user.riwayat.index') }}";
         },
         onPending: function () {
             alert('Menunggu pembayaran');

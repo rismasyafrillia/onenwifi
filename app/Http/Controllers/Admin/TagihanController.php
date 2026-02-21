@@ -7,21 +7,18 @@ use Illuminate\Http\Request;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
 use Carbon\Carbon;
+use App\Services\WhatsAppService;
 
 class TagihanController extends Controller
 {
     public function index(Request $request)
     {
-        Tagihan::prosesOtomatis();
-
-        $tagihan = Tagihan::with('pelanggan.paket')
-            ->orderBy('jatuh_tempo', 'desc')
-            ->get();
+        Tagihan::updateStatusMenunggak();
 
         $listPeriode = Tagihan::select('periode')
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode');
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode');
 
         $query = Tagihan::with('pelanggan.paket')
             ->orderBy('periode', 'desc')
@@ -38,11 +35,33 @@ class TagihanController extends Controller
 
     public function generateBulanan()
     {
-        Tagihan::prosesOtomatis();
+        $periode = now()->format('m-Y');
+
+        // generate dan ambil tagihan yang baru dibuat
+        $tagihans = Tagihan::generateBulanan($periode);
+
+        foreach ($tagihans as $tagihan) {
+
+            $pelanggan = $tagihan->pelanggan;
+
+            if ($pelanggan && $pelanggan->no_hp) {
+
+                $message = "Halo {$pelanggan->nama},
+
+    Tagihan bulan {$periode} sebesar Rp " 
+                    . number_format($tagihan->nominal, 0, ',', '.') . " sudah tersedia.
+
+    Silakan lakukan pembayaran sebelum jatuh tempo.
+
+    Terima kasih.";
+
+                WhatsAppService::send($pelanggan->no_hp, $message);
+            }
+        }
 
         return redirect()
             ->route('admin.tagihan.index')
-            ->with('success', 'Tagihan bulan ini berhasil digenerate');
+            ->with('success', 'Tagihan bulan ' . $periode . ' berhasil digenerate');
     }
 
     public function edit($id)
@@ -58,7 +77,7 @@ class TagihanController extends Controller
         return view('admin.tagihan.edit', compact('tagihan'));
     }
 
-public function bayarCash($id)
+    public function bayarCash($id)
     {
         $tagihan = Tagihan::with('pelanggan')->findOrFail($id);
 
@@ -66,9 +85,10 @@ public function bayarCash($id)
             return back()->with('error', 'Tagihan sudah lunas');
         }
 
-        $periodeBayar = Carbon::createFromFormat('m-Y', $tagihan->periode)->startOfMonth();
+        $periodeBayar = Carbon::createFromFormat('m-Y', $tagihan->periode)
+            ->startOfMonth();
 
-        // ambil semua bulan <= bulan ini
+        // Ambil semua tagihan pelanggan yang belum lunas
         $tagihanDibayar = Tagihan::where('pelanggan_id', $tagihan->pelanggan_id)
             ->whereIn('status', ['belum bayar', 'menunggak'])
             ->get()
@@ -79,12 +99,16 @@ public function bayarCash($id)
             });
 
         if ($tagihanDibayar->isEmpty()) {
-            return back()->with('error', 'Tidak ada tagihan');
+            return back()->with('error', 'Tidak ada tagihan yang bisa dibayar');
         }
 
+        $pelanggan = $tagihan->pelanggan;
+
         foreach ($tagihanDibayar as $t) {
+
+            // Simpan pembayaran
             Pembayaran::create([
-                'user_id'      => $tagihan->pelanggan->user_id,
+                'user_id'      => $pelanggan->user_id,
                 'pelanggan_id' => $t->pelanggan_id,
                 'tagihan_id'   => $t->id,
                 'order_id'     => 'CASH-' . $t->id . '-' . time(),
@@ -94,7 +118,23 @@ public function bayarCash($id)
                 'paid_at'      => now(),
             ]);
 
-            $t->update(['status' => 'lunas']);
+            // Update status tagihan
+            $t->update([
+                'status' => 'lunas'
+            ]);
+
+            if ($pelanggan && $pelanggan->no_hp) {
+
+                $message = "Pembayaran berhasil 
+
+    Tagihan bulan {$t->periode} sebesar Rp "
+                    . number_format($t->nominal, 0, ',', '.')
+                    . " telah diterima melalui pembayaran CASH.
+
+    Terima kasih telah melakukan pembayaran tepat waktu 🙏";
+
+                WhatsAppService::send($pelanggan->no_hp, $message);
+            }
         }
 
         return back()->with(

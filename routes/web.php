@@ -14,14 +14,14 @@ use App\Http\Controllers\User\KomplainController as UserKomplainController;
 use App\Http\Controllers\User\TagihanUserController;
 
 use App\Http\Controllers\PushController;
-use App\Http\Controllers\MidtransCallbackController;
+// use App\Http\Controllers\MidtransCallbackController;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
-
+// Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
+        
 Route::get('/login', [LoginController::class, 'showLoginForm'])
     ->name('login');
 
@@ -51,7 +51,7 @@ Route::prefix('admin')
         Route::get('tagihan', [TagihanController::class, 'index'])
             ->name('tagihan.index');
 
-        Route::put('tagihan/generate', [TagihanController::class, 'generateBulanan'])
+        Route::post('tagihan/generate', [TagihanController::class, 'generateBulanan'])
             ->name('tagihan.generate');
 
         Route::get('tagihan/{id}/edit', [TagihanController::class, 'edit'])
@@ -97,9 +97,9 @@ Route::prefix('user')
         Route::get('tagihan', [TagihanUserController::class, 'index'])->name('tagihan.index');
         Route::get('tagihan/{id}', [TagihanUserController::class, 'show'])->name('tagihan.show');
         Route::post('tagihan/{id}/bayar', [TagihanUserController::class, 'bayar'])->name('tagihan.bayar');
-        Route::get('pembayaran/riwayat', [TagihanUserController::class, 'riwayat'])
-             ->name('pembayaran.riwayat');
-
+        Route::get('riwayat', [TagihanUserController::class, 'riwayat'])
+             ->name('riwayat.index');
+    
         Route::get('profile', [UserDashboardController::class, 'profile'])
              ->name('profile');
     });

@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Midtrans\Snap;
 use Midtrans\Config;
 use Carbon\Carbon;
+use Midtrans\Notification;
+use App\Services\WhatsAppService;
 
 class TagihanUserController extends Controller
 {
@@ -80,7 +82,7 @@ class TagihanUserController extends Controller
             'order_id'     => $orderId,
             'nominal'      => $tagihan->nominal,
             'metode'       => 'qris',
-            'status'       => 'pending',
+            'status'       => 'belum bayar',
         ]);
 
         $params = [
@@ -92,20 +94,76 @@ class TagihanUserController extends Controller
                 'first_name' => $user->name,
                 'email'      => $user->email,
             ],
+            'callbacks' => [
+                'finish' => url('/user/riwayat'),
+            ],
         ];
 
         $snapToken = Snap::getSnapToken($params);
 
         return view('user.tagihan.show', compact('tagihan', 'snapToken'));
+
+    }
+
+    public function notification(Request $request)
+    {
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+
+        $notif = new Notification();
+
+        $transaction = $notif->transaction_status;
+        $orderId = $notif->order_id;
+
+        $pembayaran = Pembayaran::where('order_id', $orderId)->first();
+
+        if (!$pembayaran) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        if ($transaction == 'settlement') {
+
+            $pembayaran->update([
+                'status' => 'success',
+                'paid_at' => now(),
+            ]);
+
+            $tagihan = Tagihan::with('pelanggan')
+                ->find($pembayaran->tagihan_id);
+
+            $tagihan->update(['status' => 'lunas']);
+
+            // KIRIM WA
+            $pelanggan = $tagihan->pelanggan;
+
+            if ($pelanggan && $pelanggan->no_hp) {
+
+                $message = "Pembayaran berhasil
+
+    Tagihan bulan {$tagihan->periode} sebesar Rp "
+                    . number_format($tagihan->nominal, 0, ',', '.')
+                    . " telah diterima.
+
+    Terima kasih.";
+
+                WhatsAppService::send($pelanggan->no_hp, $message);
+            }
+        }
+
+        return response()->json(['message' => 'OK']);
     }
 
     public function riwayat()
     {
-        $pembayarans = Pembayaran::with('tagihan')
-            ->where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = auth()->user();
 
-        return view('user.pembayaran.riwayat', compact('pembayarans'));
+        $riwayat = \App\Models\Tagihan::whereHas('pelanggan', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })
+        ->where('status', 'lunas')
+        ->latest()
+        ->get();
+
+        return view('user.tagihan.riwayat', compact('riwayat'));
     }
 }

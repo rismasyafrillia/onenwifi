@@ -6,6 +6,13 @@
     <div class="d-flex justify-content-between mb-3">
         <h3>Data Tagihan</h3>
 
+        <form action="{{ route('admin.tagihan.generate') }}" method="POST">
+            @csrf
+            <button class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Generate Tagihan Bulan Ini
+            </button>
+        </form>
+        
         <form method="GET">
             <select name="periode" class="form-select" onchange="this.form.submit()">
                 <option value="">Semua Periode</option>
@@ -16,6 +23,7 @@
                 @endforeach
             </select>
         </form>
+
     </div>
 
     @foreach($tagihan as $periode => $items)

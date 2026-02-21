@@ -1,8 +1,8 @@
 <?php
 
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\MidtransCallbackController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MidtransCallbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,11 +13,11 @@
 |--------------------------------------------------------------------------
 */
 
-// Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
 
 // Route::get('/ping', function () {
 //     return response()->json([
 //         'status' => 'ok',
 //         'time' => now()
 //     ]);
-// }); -->
+// });

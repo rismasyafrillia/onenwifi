@@ -210,6 +210,12 @@
                 </a>
             </li>
 
+            <li>
+                <a href="{{ route('user.riwayat.index') }}">
+                    Riwayat Transaksi
+                </a>
+            </li>
+
         </ul>
 
         <!-- LOGOUT -->
