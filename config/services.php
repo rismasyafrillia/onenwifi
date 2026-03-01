@@ -40,4 +40,7 @@ return [
         'client_key' => env('MIDTRANS_CLIENT_KEY'),
     ],
 
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+    ],
 ];

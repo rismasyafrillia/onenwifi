@@ -107,53 +107,53 @@ class TagihanUserController extends Controller
 
     }
 
-    public function notification(Request $request)
-    {
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
+    // public function notification(Request $request)
+    // {
+    //     Config::$serverKey = config('midtrans.server_key');
+    //     Config::$isProduction = config('midtrans.is_production');
 
-        $notif = new Notification();
+    //     $notif = new Notification();
 
-        $transaction = $notif->transaction_status;
-        $orderId = $notif->order_id;
+    //     $transaction = $notif->transaction_status;
+    //     $orderId = $notif->order_id;
 
-        $pembayaran = Pembayaran::where('order_id', $orderId)->first();
+    //     $pembayaran = Pembayaran::where('order_id', $orderId)->first();
 
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Not found'], 404);
-        }
+    //     if (!$pembayaran) {
+    //         return response()->json(['message' => 'Not found'], 404);
+    //     }
 
-        if ($transaction == 'settlement') {
+    //     if ($transaction == 'settlement') {
 
-            $pembayaran->update([
-                'status' => 'success',
-                'paid_at' => now(),
-            ]);
+    //         $pembayaran->update([
+    //             'status' => 'success',
+    //             'paid_at' => now(),
+    //         ]);
 
-            $tagihan = Tagihan::with('pelanggan')
-                ->find($pembayaran->tagihan_id);
+    //         $tagihan = Tagihan::with('pelanggan')
+    //             ->find($pembayaran->tagihan_id);
 
-            $tagihan->update(['status' => 'lunas']);
+    //         $tagihan->update(['status' => 'lunas']);
 
-            // KIRIM WA
-            $pelanggan = $tagihan->pelanggan;
+    //         // KIRIM WA
+    //         $pelanggan = $tagihan->pelanggan;
 
-            if ($pelanggan && $pelanggan->no_hp) {
+    //         if ($pelanggan && $pelanggan->no_hp) {
 
-                $message = "Pembayaran berhasil
+    //             $message = "Pembayaran berhasil
 
-    Tagihan bulan {$tagihan->periode} sebesar Rp "
-                    . number_format($tagihan->nominal, 0, ',', '.')
-                    . " telah diterima.
+    // Tagihan bulan {$tagihan->periode} sebesar Rp "
+    //                 . number_format($tagihan->nominal, 0, ',', '.')
+    //                 . " telah diterima.
 
-    Terima kasih.";
+    // Terima kasih.";
 
-                WhatsAppService::send($pelanggan->no_hp, $message);
-            }
-        }
+    //             WhatsAppService::send($pelanggan->no_hp, $message);
+    //         }
+    //     }
 
-        return response()->json(['message' => 'OK']);
-    }
+    //     return response()->json(['message' => 'OK']);
+    // }
 
     public function riwayat()
     {

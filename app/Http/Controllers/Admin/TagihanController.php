@@ -37,8 +37,11 @@ class TagihanController extends Controller
     {
         $periode = now()->format('m-Y');
 
-        // generate dan ambil tagihan yang baru dibuat
         $tagihans = Tagihan::generateBulanan($periode);
+
+        if (!$tagihans) {
+            $tagihans = collect();
+        }
 
         foreach ($tagihans as $tagihan) {
 
@@ -48,7 +51,7 @@ class TagihanController extends Controller
 
                 $message = "Halo {$pelanggan->nama},
 
-    Tagihan bulan {$periode} sebesar Rp " 
+    Tagihan bulan {$periode} sebesar Rp "
                     . number_format($tagihan->nominal, 0, ',', '.') . " sudah tersedia.
 
     Silakan lakukan pembayaran sebelum jatuh tempo.
@@ -106,7 +109,6 @@ class TagihanController extends Controller
 
         foreach ($tagihanDibayar as $t) {
 
-            // Simpan pembayaran
             Pembayaran::create([
                 'user_id'      => $pelanggan->user_id,
                 'pelanggan_id' => $t->pelanggan_id,
@@ -118,7 +120,6 @@ class TagihanController extends Controller
                 'paid_at'      => now(),
             ]);
 
-            // Update status tagihan
             $t->update([
                 'status' => 'lunas'
             ]);

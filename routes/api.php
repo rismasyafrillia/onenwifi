@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransCallbackController;
+// use App\Http\Controllers\MidtransNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +15,7 @@ use App\Http\Controllers\MidtransCallbackController;
 */
 
 Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
-
+// Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 // Route::get('/ping', function () {
 //     return response()->json([
 //         'status' => 'ok',

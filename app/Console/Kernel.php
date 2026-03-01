@@ -7,51 +7,80 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Models\Tagihan;
 use App\Services\WhatsAppService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     */
     protected function schedule(Schedule $schedule): void
     {
-        // Kirim pengingat setiap hari jam 08:00
         $schedule->call(function () {
 
-            $today = Carbon::today();
+            Log::info('Scheduler pengingat tagihan dijalankan');
 
-            // Ambil tagihan yang belum lunas dan jatuh tempo hari ini
-            $tagihans = Tagihan::where('status', 'belum_lunas')
-                ->whereDate('jatuh_tempo', $today)
-                ->get();
+            try {
 
-            foreach ($tagihans as $tagihan) {
+                $today = Carbon::today();
+                $day = $today->day;
 
-                $pelanggan = $tagihan->pelanggan; // pastikan ada relasi
+                Log::info('Tanggal hari ini: ' . $day);
 
-                if ($pelanggan && $pelanggan->no_hp) {
-
-                    $message = "Halo {$pelanggan->nama},\n\n"
-                        . "Tagihan bulan {$tagihan->periode} sebesar Rp "
-                        . number_format($tagihan->jumlah, 0, ',', '.')
-                        . " jatuh tempo hari ini.\n\n"
-                        . "Segera lakukan pembayaran agar layanan tidak terblokir.\n\n"
-                        . "Terima kasih.";
-
-                    WhatsAppService::send($pelanggan->no_hp, $message);
+                // Hanya kirim di tanggal tertentu
+                if (!in_array($day, [1, 10, 15, 20])) {
+                    Log::info('Bukan tanggal pengingat, dilewati.');
+                    return;
                 }
+
+                $tagihans = Tagihan::with('pelanggan')
+                    ->where('status', 'belum_lunas')
+                    ->get();
+
+                Log::info('Jumlah tagihan ditemukan: ' . $tagihans->count());
+
+                foreach ($tagihans as $tagihan) {
+
+                    $pelanggan = $tagihan->pelanggan;
+
+                    if (!$pelanggan) {
+                        Log::warning("Tagihan ID {$tagihan->id} tidak punya pelanggan");
+                        continue;
+                    }
+
+                    if (!$pelanggan->no_hp) {
+                        Log::warning("Pelanggan {$pelanggan->nama} tidak punya no_hp");
+                        continue;
+                    }
+
+                    try {
+
+                        $message = "Halo {$pelanggan->nama},\n\n"
+                            . "Pengingat pembayaran tagihan bulan {$tagihan->periode}.\n"
+                            . "Total: Rp " . number_format($tagihan->jumlah, 0, ',', '.')
+                            . "\n\nMohon segera lakukan pembayaran.\n\n"
+                            . "Terima kasih.";
+
+                        WhatsAppService::send($pelanggan->no_hp, $message);
+
+                        Log::info("Berhasil kirim ke {$pelanggan->nama}");
+
+                    } catch (\Exception $e) {
+
+                        Log::error("Gagal kirim ke {$pelanggan->nama}");
+                        Log::error($e->getMessage());
+                    }
+                }
+
+            } catch (\Exception $e) {
+
+                Log::error('Error utama scheduler');
+                Log::error($e->getMessage());
             }
 
-        })->dailyAt('08:00');
+        })->everyMinute(); // ⬅ ganti dari dailyAt('08:00')
     }
 
-    /**
-     * Register the commands for the application.
-     */
     protected function commands(): void
     {
         $this->load(__DIR__.'/Commands');
-
         require base_path('routes/console.php');
     }
 }

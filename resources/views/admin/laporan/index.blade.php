@@ -14,7 +14,8 @@
         <div class="card-body">
             <form method="GET" class="row g-3 align-items-end">
 
-                <div class="col-md-3">
+                {{-- BULAN --}}
+                <div class="col-md-2">
                     <label class="form-label fw-semibold">Bulan</label>
                     <select name="bulan" class="form-select">
                         <option value="">Semua Bulan</option>
@@ -26,7 +27,8 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
+                {{-- TAHUN --}}
+                <div class="col-md-2">
                     <label class="form-label fw-semibold">Tahun</label>
                     <select name="tahun" class="form-select">
                         <option value="">Semua Tahun</option>
@@ -38,16 +40,45 @@
                     </select>
                 </div>
 
+                {{-- STATUS --}}
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="semua">Semua</option>
+                        <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>
+                            Lunas
+                        </option>
+                        <option value="belum bayar" {{ request('status') == 'belum bayar' ? 'selected' : '' }}>
+                            Belum Bayar
+                        </option>
+                        <option value="menunggak" {{ request('status') == 'menunggak' ? 'selected' : '' }}>
+                            Menunggak
+                        </option>
+                    </select>
+                </div>
+
+                {{-- NAMA --}}
                 <div class="col-md-3">
+                    <label class="form-label fw-semibold">Nama Pelanggan</label>
+                    <input type="text"
+                           name="nama"
+                           value="{{ request('nama') }}"
+                           class="form-control"
+                           placeholder="Cari nama...">
+                </div>
+
+                {{-- BUTTON FILTER --}}
+                <div class="col-md-1">
                     <button class="btn btn-primary w-100">
-                        <i class="bi bi-filter"></i> Terapkan Filter
+                        <i class="bi bi-filter"></i>
                     </button>
                 </div>
 
-                <div class="col-md-3">
+                {{-- EXPORT PDF --}}
+                <div class="col-md-2">
                     <a href="{{ route('admin.laporan.export.pdf', request()->query()) }}"
                        class="btn btn-danger w-100">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
                     </a>
                 </div>
 
@@ -60,8 +91,11 @@
         <x-laporan-card title="Total Tagihan" :value="$totalTagihan" />
         <x-laporan-card title="Lunas" :value="$lunas" color="success" />
         <x-laporan-card title="Menunggak" :value="$menunggak" color="danger" />
-        <x-laporan-card title="Total Pembayaran" 
-            :value="'Rp '.number_format($totalNominal)" color="primary" />
+        <x-laporan-card 
+            title="Total Pembayaran" 
+            :value="'Rp '.number_format($totalNominal)" 
+            color="primary" 
+        />
     </div>
 
     {{-- TABEL --}}
@@ -74,6 +108,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
+                            <th>Nama</th>
                             <th>Periode</th>
                             <th>Nominal</th>
                             <th>Status</th>
@@ -84,10 +119,15 @@
                         @forelse ($tagihans as $t)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
+                            <td>{{ $t->pelanggan->nama ?? '-' }}</td>
                             <td>{{ $t->periode }}</td>
                             <td>Rp {{ number_format($t->nominal) }}</td>
                             <td>
-                                <span class="badge {{ $t->status == 'lunas' ? 'bg-success' : 'bg-danger' }}">
+                                <span class="badge 
+                                    @if($t->status == 'lunas') bg-success
+                                    @elseif($t->status == 'menunggak') bg-danger
+                                    @else bg-warning text-dark
+                                    @endif">
                                     {{ ucfirst($t->status) }}
                                 </span>
                             </td>
@@ -95,7 +135,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
+                            <td colspan="6" class="text-center text-muted">
                                 Tidak ada data
                             </td>
                         </tr>

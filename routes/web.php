@@ -14,12 +14,13 @@ use App\Http\Controllers\User\KomplainController as UserKomplainController;
 use App\Http\Controllers\User\TagihanUserController;
 
 use App\Http\Controllers\PushController;
+// use App\Http\Controllers\MidtransNotificationController;
 // use App\Http\Controllers\MidtransCallbackController;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
-
+// Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 // Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
         
 Route::get('/login', [LoginController::class, 'showLoginForm'])
