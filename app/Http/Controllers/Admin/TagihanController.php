@@ -91,16 +91,17 @@ class TagihanController extends Controller
         $periodeBayar = Carbon::createFromFormat('m-Y', $tagihan->periode)
             ->startOfMonth();
 
-        // Ambil semua tagihan pelanggan yang belum lunas
-        $tagihanDibayar = Tagihan::where('pelanggan_id', $tagihan->pelanggan_id)
-            ->whereIn('status', ['belum bayar', 'menunggak'])
-            ->get()
-            ->filter(function ($t) use ($periodeBayar) {
-                return Carbon::createFromFormat('m-Y', $t->periode)
-                    ->startOfMonth()
-                    ->lte($periodeBayar);
-            });
+        // $tagihanDibayar = Tagihan::where('pelanggan_id', $tagihan->pelanggan_id)
+        //     ->whereIn('status', ['belum bayar', 'menunggak'])
+        //     ->get()
+        //     ->filter(function ($t) use ($periodeBayar) {
+        //         return Carbon::createFromFormat('m-Y', $t->periode)
+        //             ->startOfMonth()
+        //             ->lte($periodeBayar);
+        //     });
 
+        $tagihanDibayar = collect([$tagihan]);
+        
         if ($tagihanDibayar->isEmpty()) {
             return back()->with('error', 'Tidak ada tagihan yang bisa dibayar');
         }
@@ -126,13 +127,13 @@ class TagihanController extends Controller
 
             if ($pelanggan && $pelanggan->no_hp) {
 
-                $message = "Pembayaran berhasil 
+                $message = "Pembayaran berhasil
 
-    Tagihan bulan {$t->periode} sebesar Rp "
-                    . number_format($t->nominal, 0, ',', '.')
-                    . " telah diterima melalui pembayaran CASH.
+                Tagihan bulan {$t->periode}
+                sebesar Rp " . number_format($t->nominal, 0, ',', '.') . "
+                telah diterima melalui pembayaran CASH.
 
-    Terima kasih telah melakukan pembayaran tepat waktu 🙏";
+                Terima kasih 🙏";
 
                 WhatsAppService::send($pelanggan->no_hp, $message);
             }

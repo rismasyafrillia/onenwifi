@@ -84,7 +84,7 @@
                         <form method="POST" action="{{ route('admin.tagihan.bayarCash', $t->id) }}">
                             @csrf
                             <button class="btn btn-success btn-sm"
-                                onclick="return confirm('Bayar semua tagihan sampai bulan ini?')">
+                                onclick="return confirm('Bayar tagihan bulan ini?')">
                                 Bayar Cash
                             </button>
                         </form>

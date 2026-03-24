@@ -70,6 +70,16 @@ class TagihanUserController extends Controller
         //     );
         // }
 
+        // $semuaTagihan = Tagihan::where('pelanggan_id', $tagihan->pelanggan_id)
+        //     ->whereIn('status', ['belum bayar', 'menunggak'])
+        //     ->orderBy('periode', 'asc')
+        //     ->get();
+
+        // $totalBayar = $semuaTagihan->sum('nominal');
+
+        $semuaTagihan = collect([$tagihan]);
+        $totalBayar = $tagihan->nominal;
+
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = true;
@@ -77,21 +87,33 @@ class TagihanUserController extends Controller
 
         $orderId = 'ORDER-' . $tagihan->id . '-' . time();
 
-        Pembayaran::create([
+        $pembayaran = Pembayaran::create([
             'user_id'      => $user->id,
             'pelanggan_id' => $tagihan->pelanggan_id,
             'tagihan_id'   => $tagihan->id,
             'order_id'     => $orderId,
-            'nominal'      => $tagihan->nominal,
+            'nominal'      => $totalBayar,
             'metode'       => 'qris',
             'status'       => 'belum bayar',
         ]);
 
+        $itemDetails = [];
+
+        foreach ($semuaTagihan as $t) {
+            $itemDetails[] = [
+                'id'       => $t->id,
+                'price'    => $t->nominal,
+                'quantity' => 1,
+                'name'     => 'Tagihan ' . $t->periode,
+            ];
+        }
+
         $params = [
             'transaction_details' => [
                 'order_id'     => $orderId,
-                'gross_amount' => $tagihan->nominal,
+                'gross_amount' => $totalBayar,
             ],
+            'item_details' => $itemDetails,
             'customer_details' => [
                 'first_name' => $user->name,
                 'email'      => $user->email,
@@ -103,8 +125,12 @@ class TagihanUserController extends Controller
 
         $snapToken = Snap::getSnapToken($params);
 
-        return view('user.tagihan.show', compact('tagihan', 'snapToken'));
-
+        return view('user.tagihan.show', compact(
+            'tagihan',
+            'snapToken',
+            'semuaTagihan',
+            'totalBayar'
+        ));
     }
 
     // public function notification(Request $request)
@@ -174,7 +200,9 @@ class TagihanUserController extends Controller
             ->where('user_id', auth()->id())
             ->findOrFail($id);
 
-        return view('user.pembayaran.show', compact('pembayaran'));
+        $tagihan = $pembayaran->tagihan;
+        
+        return view('user.pembayaran.show', compact('pembayaran', 'tagihan'));
     }
 
     public function cetak($id)

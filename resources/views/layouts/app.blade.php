@@ -15,6 +15,7 @@
     {{-- PWA --}}
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <style>
         body {
@@ -168,6 +169,10 @@
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
         navigator.serviceWorker.register("/service-worker.js")
+.then(reg => {
+    reg.update();
+    console.log("SW updated");
+});
             .then(reg => console.log("SW Registered:", reg.scope))
             .catch(err => console.log("SW Failed:", err));
     });

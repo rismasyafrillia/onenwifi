@@ -2,6 +2,7 @@
   "name": "OneN Wifi Billing",
   "short_name": "OneN Wifi",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0d6efd",

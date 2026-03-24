@@ -16,6 +16,7 @@ class MidtransCallbackController extends Controller
 
         $serverKey = config('services.midtrans.server_key');
 
+        // Generate signature
         $signatureKey = hash(
             'sha512',
             $request->order_id .
@@ -27,11 +28,13 @@ class MidtransCallbackController extends Controller
         Log::info('Generated Signature: ' . $signatureKey);
         Log::info('Midtrans Signature: ' . $request->signature_key);
 
+        // Validasi signature
         if ($signatureKey !== $request->signature_key) {
             Log::warning('Invalid signature for Order ID: ' . $request->order_id);
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
+        // Cari pembayaran
         $pembayaran = Pembayaran::with('tagihan.pelanggan')
             ->where('order_id', $request->order_id)
             ->first();
@@ -49,25 +52,31 @@ class MidtransCallbackController extends Controller
 
             Log::info('Payment SUCCESS for Order ID: ' . $request->order_id);
 
+            // Cegah double proses
             if ($pembayaran->status === 'success') {
-                Log::warning('ALREADY SUCCESS - SKIP WA');
+                Log::warning('ALREADY SUCCESS - SKIP PROCESS');
                 Log::info('=== MIDTRANS CALLBACK END ===');
                 return response()->json(['message' => 'Already processed']);
             }
 
+            // Update pembayaran
             $pembayaran->update([
-                'status' => 'success',
+                'status'  => 'success',
                 'paid_at' => now(),
             ]);
 
             $tagihan = $pembayaran->tagihan;
 
-            if ($tagihan) {
+            if ($tagihan && $tagihan->status !== 'lunas') {
+
                 $tagihan->update([
                     'status' => 'lunas',
                 ]);
 
-                Log::info('Tagihan updated to LUNAS');
+                Log::info('Tagihan updated to LUNAS', [
+                    'tagihan_id' => $tagihan->id,
+                    'periode' => $tagihan->periode
+                ]);
             }
 
             $pelanggan = optional($tagihan)->pelanggan;

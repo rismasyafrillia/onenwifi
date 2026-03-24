@@ -5,6 +5,10 @@
 
 <script>
 if ("serviceWorker" in navigator) {
- navigator.serviceWorker.register("/service-worker.js");
+ navigator.serviceWorker.register("/service-worker.js")
+.then(reg => {
+    reg.update();
+    console.log("SW updated");
+});;
 }
 </script>

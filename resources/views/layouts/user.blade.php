@@ -14,6 +14,7 @@
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <style>
         body {
@@ -143,7 +144,7 @@
 </head>
 <body>
 <div id="splash-screen">
-    <img src="/icons/icon-512.png" alt="OneN WiFi">
+    <img src="/logo.png" alt="OneN WiFi">
 </div>
 
 <!-- OVERLAY (HP) -->
@@ -244,6 +245,10 @@ function toggleSidebar() {
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/service-worker.js")
+.then(reg => {
+    reg.update();
+    console.log("SW updated");
+});
     .then(() => console.log("SW Registered"))
     .catch(err => console.log("SW Failed", err));
 }

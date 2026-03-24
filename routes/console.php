@@ -117,4 +117,4 @@ Schedule::call(function () {
         Log::error($e->getMessage());
     }
 
-})->dailyAt('08:00');
+})->dailyAt('08:00'); //atau everyMinute();

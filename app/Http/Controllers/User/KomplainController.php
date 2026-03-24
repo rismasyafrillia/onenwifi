@@ -11,7 +11,11 @@ class KomplainController extends Controller
 {
     public function index()
     {
-        $komplains = Komplain::with('pelanggan')
+        $user = auth()->user();
+
+        $pelanggan = Pelanggan::where('user_id', $user->id)->first();
+
+        $komplains = Komplain::where('pelanggan_id', $pelanggan->id)
             ->latest()
             ->get();
 
