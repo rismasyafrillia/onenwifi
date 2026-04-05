@@ -65,7 +65,7 @@ Schedule::call(function () {
         $day = $today->day;
 
         // Hanya kirim di tanggal tertentu
-        if (!in_array($day, [1, 10, 15, 20])) {
+        if (!in_array($day, [1,5, 10, 15, 20])) {
             Log::info('Bukan tanggal pengingat, dilewati.');
             return;
         }
@@ -117,4 +117,4 @@ Schedule::call(function () {
         Log::error($e->getMessage());
     }
 
-})->dailyAt('08:00'); //atau everyMinute();
+})->dailyAt('09:00'); //atau everyMinute();
