@@ -7,6 +7,11 @@ use App\Models\Pelanggan;
 use Carbon\Carbon;
 use App\Services\WhatsAppService;
 
+/*
+|--------------------------------------------------------------------------
+| 1. UPDATE STATUS TAGIHAN
+|--------------------------------------------------------------------------
+*/
 Schedule::call(function () {
 
     Log::info('Scheduler update status tagihan jalan');
@@ -18,6 +23,11 @@ Schedule::call(function () {
 })->dailyAt('00:10');
 
 
+/*
+|--------------------------------------------------------------------------
+| 2. GENERATE TAGIHAN BULANAN
+|--------------------------------------------------------------------------
+*/
 Schedule::call(function () {
 
     Log::info('Scheduler generate tagihan bulanan jalan');
@@ -55,18 +65,34 @@ Schedule::call(function () {
 
 })->monthlyOn(1, '00:05');
 
+
+/*
+|--------------------------------------------------------------------------
+| 3. PENGINGAT TAGIHAN (SESUAI KERNEL)
+|--------------------------------------------------------------------------
+*/
 Schedule::call(function () {
 
     Log::info('Scheduler pengingat tagihan jalan');
 
     try {
 
-        $today = Carbon::today();
-        $day = $today->day;
+        $now = Carbon::now();
+        $day = $now->day;
+        $hour = $now->hour;
+        $minute = $now->minute;
 
-        // Hanya kirim di tanggal tertentu
+        Log::info("Waktu sekarang: {$now}");
+
+        // ✅ Sama seperti Kernel
         if (!in_array($day, [1, 10, 15, 20])) {
             Log::info('Bukan tanggal pengingat, dilewati.');
+            return;
+        }
+
+        // ✅ Sama seperti Kernel (jam 14:00 - 14:50)
+        if ($hour != 14 || $minute > 50) {
+            Log::info('Di luar jam pengiriman, dilewati.');
             return;
         }
 
@@ -90,25 +116,29 @@ Schedule::call(function () {
                 continue;
             }
 
-            $message = "Halo {$pelanggan->nama},\n\n"
-                . "Pengingat pembayaran tagihan bulan {$tagihan->periode}.\n"
-                . "Total: Rp " . number_format($tagihan->nominal, 0, ',', '.')
-                . "\n\nMohon segera lakukan pembayaran.\n\n"
-                . "Terima kasih.";
+            try {
 
-            $response = WhatsAppService::send($pelanggan->no_hp, $message);
+                $message = "Halo {$pelanggan->nama},\n\n"
+                    . "Pengingat pembayaran tagihan bulan {$tagihan->periode}.\n"
+                    . "Total: Rp " . number_format($tagihan->nominal, 0, ',', '.')
+                    . "\n\nMohon segera lakukan pembayaran.\n\n"
+                    . "Terima kasih.";
 
-            if (isset($response['status']) && $response['status'] == true) {
+                $response = WhatsAppService::send($pelanggan->no_hp, $message);
 
-                Log::info("Berhasil kirim ke {$pelanggan->nama}");
+                if (isset($response['status']) && $response['status'] == true) {
+                    Log::info("Berhasil kirim ke {$pelanggan->nama}");
+                } else {
+                    Log::error("Gagal kirim ke {$pelanggan->nama}");
+                    Log::error('Response: ' . json_encode($response));
+                }
 
-            } else {
-
+            } catch (\Exception $e) {
                 Log::error("Gagal kirim ke {$pelanggan->nama}");
-                Log::error('Response: ' . json_encode($response));
+                Log::error($e->getMessage());
             }
 
-            sleep(1);
+            sleep(1); // biar tidak spam API
         }
 
     } catch (\Exception $e) {
@@ -117,4 +147,4 @@ Schedule::call(function () {
         Log::error($e->getMessage());
     }
 
-})->dailyAt('08:00'); //atau everyMinute();
+})->everyFiveMinutes(); // ✅ SAMA DENGAN KERNEL
