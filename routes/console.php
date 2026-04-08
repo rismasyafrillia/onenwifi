@@ -85,7 +85,7 @@ Schedule::call(function () {
         Log::info("Waktu sekarang: {$now}");
 
         // ✅ Sama seperti Kernel
-        if (!in_array($day, [1, 10, 15, 20])) {
+        if (!in_array($day, [1, 9, 15, 20])) {
             Log::info('Bukan tanggal pengingat, dilewati.');
             return;
         }
