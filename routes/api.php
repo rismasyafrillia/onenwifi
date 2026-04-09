@@ -24,15 +24,9 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 //     ]);
 // });
 
-Route::get('/cron/{token}', function ($token) {
+Route::get('/cron', function () {
 
-    if ($token !== env('CRON_TOKEN')) {
-        abort(403);
-    }
+    Artisan::call('schedulertagihan:run');
 
-    Artisan::call('tagihan:generate');
-    Artisan::call('tagihan:update-status');
-    Artisan::call('tagihan:ingatkan');
-
-    return 'Cron berhasil dijalankan';
+    return 'Cron jalan';
 });

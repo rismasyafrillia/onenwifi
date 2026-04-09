@@ -3,49 +3,30 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 class SchedulerUtama extends Command
 {
     protected $signature = 'schedulertagihan:run';
-    protected $description = 'Scheduler utama semua proses';
+    protected $description = 'Jalankan semua proses tagihan (manual / cron)';
 
     public function handle()
     {
-        $now = Carbon::now();
+        Log::info("Scheduler manual dijalankan");
 
-        $day = $now->day;
-        $hour = $now->hour;
-        $minute = $now->minute;
+        // 1. Generate tagihan
+        Log::info('Menjalankan generate tagihan');
+        Artisan::call('tagihan:generate');
 
-        Log::info("Scheduler utama jalan: {$now}");
+        // 2. Update status
+        Log::info('Menjalankan update status');
+        Artisan::call('tagihan:update-status');
 
-        // =========================
-        // 1. GENERATE TAGIHAN
-        // =========================
-        if ($day == 1 && $hour == 8 && $minute <= 00) {
-            Log::info('Menjalankan generate tagihan');
-            Artisan::call('tagihan:generate');
-        }
+        // 3. Kirim pengingat
+        Log::info('Menjalankan kirim pengingat');
+        Artisan::call('tagihan:ingatkan');
 
-        // =========================
-        // 2. UPDATE STATUS
-        // =========================
-        if ($hour == 8 && $minute <= 05) {
-            Log::info('Menjalankan update status');
-            Artisan::call('tagihan:update-status');
-        }
-
-        // =========================
-        // 3. KIRIM PENGINGAT
-        // =========================
-        if (in_array($day, [1, 9, 15, 20]) && $hour == 8 && $minute <= 10) {
-            Log::info('Menjalankan kirim pengingat');
-            Artisan::call('tagihan:ingatkan');
-        }
-
-        $this->info('Scheduler selesai');
+        $this->info('Semua proses selesai');
     }
 }
