@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransCallbackController;
+use Illuminate\Support\Facades\Artisan;
 // use App\Http\Controllers\MidtransNotificationController;
 
 /*
@@ -22,3 +23,16 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 //         'time' => now()
 //     ]);
 // });
+
+Route::get('/cron/{token}', function ($token) {
+
+    if ($token !== env('CRON_TOKEN')) {
+        abort(403);
+    }
+
+    Artisan::call('tagihan:generate');
+    Artisan::call('tagihan:update-status');
+    Artisan::call('tagihan:ingatkan');
+
+    return 'Cron berhasil dijalankan';
+});

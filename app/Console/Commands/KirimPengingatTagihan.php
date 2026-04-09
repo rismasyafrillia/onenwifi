@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Tagihan;
 use App\Services\WhatsAppService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class KirimPengingatTagihan extends Command
@@ -15,19 +14,15 @@ class KirimPengingatTagihan extends Command
 
     public function handle()
     {
-        Log::info('Scheduler tagihan:ingatkan dijalankan');
+        Log::info('Command kirim pengingat tagihan jalan');
 
         try {
 
-            $hariIni = Carbon::now()->day;
-
-            Log::info('Hari ini tanggal: ' . $hariIni);
-
             $tagihans = Tagihan::with('pelanggan')
-                ->where('status', 'belum_lunas')
+                ->whereIn('status', ['belum bayar', 'menunggak'])
                 ->get();
 
-            Log::info('Jumlah tagihan ditemukan: ' . $tagihans->count());
+            Log::info('Jumlah tagihan: ' . $tagihans->count());
 
             foreach ($tagihans as $tagihan) {
 
@@ -46,27 +41,37 @@ class KirimPengingatTagihan extends Command
                 try {
 
                     $message = "Halo {$pelanggan->nama},\n\n"
-                        . "Tagihan bulan {$tagihan->periode}\n"
-                        . "Total: Rp " . number_format($tagihan->jumlah, 0, ',', '.')
+                        . "Pengingat pembayaran tagihan bulan {$tagihan->periode}.\n"
+                        . "Total: Rp " . number_format($tagihan->nominal, 0, ',', '.')
                         . "\n\nMohon segera lakukan pembayaran.\n\n"
                         . "Terima kasih.";
 
-                    WhatsAppService::send($pelanggan->no_hp, $message);
+                    $response = WhatsAppService::send($pelanggan->no_hp, $message);
 
-                    Log::info("Berhasil kirim ke {$pelanggan->nama} - {$pelanggan->no_hp}");
+                    if (isset($response['status']) && $response['status'] == true) {
+
+                        Log::info("Berhasil kirim ke {$pelanggan->nama} - {$pelanggan->no_hp}");
+
+                    } else {
+
+                        Log::error("Gagal kirim ke {$pelanggan->nama}");
+                        Log::error('Response: ' . json_encode($response));
+                    }
 
                 } catch (\Exception $e) {
 
-                    Log::error("Gagal kirim ke {$pelanggan->nama}");
+                    Log::error("Error kirim ke {$pelanggan->nama}");
                     Log::error($e->getMessage());
                 }
+
+                sleep(1); // jeda biar tidak spam API
             }
 
-            $this->info('Proses selesai.');
+            $this->info('Pengingat selesai dikirim');
 
         } catch (\Exception $e) {
 
-            Log::error('Error utama scheduler:');
+            Log::error('Error utama kirim pengingat');
             Log::error($e->getMessage());
         }
     }
