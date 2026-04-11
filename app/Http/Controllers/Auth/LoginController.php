@@ -23,7 +23,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // 🔥 AUTO REDIRECT BY ROLE
+            // AUTO REDIRECT BY ROLE
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }

@@ -263,15 +263,6 @@ window.addEventListener("load", function () {
 });
 </script>
 
-<!-- BUTTON TEST -->
-<button onclick="mintaIzin()" class="btn btn-primary">
-Aktifkan Notifikasi
-</button>
-
-<button onclick="kirimNotif()" class="btn btn-success">
-Test Notifikasi
-</button>
-
 <script>
 async function subscribeUser() {
     const reg = await navigator.serviceWorker.ready;
