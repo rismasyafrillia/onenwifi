@@ -43,6 +43,7 @@
     <thead>
         <tr>
             <th>No</th>
+            <th>Nama</th>
             <th>Periode</th>
             <th>Nominal</th>
             <th>Status</th>
@@ -53,6 +54,7 @@
         @foreach($tagihans as $t)
         <tr>
             <td class="text-center">{{ $loop->iteration }}</td>
+            <td>{{ $t->pelanggan->nama ?? '-' }}</td>
             <td>{{ $t->periode }}</td>
             <td class="text-right">Rp {{ number_format($t->nominal) }}</td>
             <td class="text-center">{{ ucfirst($t->status) }}</td>
