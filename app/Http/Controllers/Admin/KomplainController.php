@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 
 class KomplainController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $komplains = Komplain::with('pelanggan')
+        $query = Komplain::with('pelanggan');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $komplains = $query
             ->orderByRaw("
                 CASE 
                     WHEN status = 'baru' THEN 1

@@ -9,6 +9,27 @@
         <small class="text-muted">Kelola dan tindak lanjuti komplain pelanggan</small>
     </div>
 
+    <form method="GET" class="mb-3 d-flex gap-2">
+        <select name="status" class="form-select w-auto" onchange="this.form.submit()">
+            <option value="">Semua Status</option>
+
+            <option value="baru"
+                {{ request('status') == 'baru' ? 'selected' : '' }}>
+                Baru
+            </option>
+
+            <option value="diproses"
+                {{ request('status') == 'diproses' ? 'selected' : '' }}>
+                Diproses
+            </option>
+
+            <option value="selesai"
+                {{ request('status') == 'selesai' ? 'selected' : '' }}>
+                Selesai
+            </option>
+        </select>
+    </form>
+
     <div class="card shadow-sm border-0">
         <div class="card-body">
 

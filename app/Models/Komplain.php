@@ -11,7 +11,8 @@ class Komplain extends Model
         'judul',
         'deskripsi',
         'tanggapan_admin',
-        'status'
+        'status',
+        'foto'
     ];
 
     public function pelanggan()

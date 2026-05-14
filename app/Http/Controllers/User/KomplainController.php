@@ -32,7 +32,8 @@ class KomplainController extends Controller
     {
         $request->validate([
             'judul'     => 'required|max:100',
-            'deskripsi' => 'required'
+            'deskripsi' => 'required',
+            'foto'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         $user = auth()->user();
@@ -43,11 +44,18 @@ class KomplainController extends Controller
             return back()->with('error', 'Data pelanggan tidak ditemukan');
         }
 
+        $foto = null;
+
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto')->store('komplain', 'public');
+        }
+
         Komplain::create([
             'pelanggan_id' => $pelanggan->id,
             'judul'        => $request->judul,
             'deskripsi'    => $request->deskripsi,
-            'status'       => 'baru'
+            'status'       => 'baru',
+            'foto' => $foto
         ]);
 
         return redirect()

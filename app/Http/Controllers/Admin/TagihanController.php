@@ -28,6 +28,10 @@ class TagihanController extends Controller
             $query->where('periode', $request->periode);
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         $tagihan = $query->get()->groupBy('periode');
 
         return view('admin.tagihan.index', compact('tagihan', 'listPeriode'));

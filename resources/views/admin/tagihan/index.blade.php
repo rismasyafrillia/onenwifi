@@ -24,6 +24,20 @@
             </select>
         </form>
 
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">Semua Status</option>
+                <option value="belum bayar" {{ request('status') == 'belum bayar' ? 'selected' : '' }}>
+                    Belum Bayar
+                </option>
+                <option value="menunggak" {{ request('status') == 'menunggak' ? 'selected' : '' }}>
+                    Menunggak
+                </option>
+                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>
+                    Lunas
+                </option>
+            </select>
+        </form>
+
     </div>
 
     @foreach($tagihan as $periode => $items)
@@ -35,6 +49,7 @@
         <table class="table table-bordered mb-0">
             <thead class="table-secondary">
                 <tr>
+                    <th>ID Pelanggan</th>
                     <th>Pelanggan</th>
                     <th>Nominal</th>
                     <th>Jatuh Tempo</th>
@@ -46,6 +61,7 @@
             <tbody>
                 @foreach($items as $t)
                 <tr>
+                    <td>{{ $t->pelanggan->id }}</td>
                     <td>{{ $t->pelanggan->nama }}</td>
                     <td>Rp {{ number_format($t->nominal) }}</td>
                     <td>{{ \Carbon\Carbon::parse($t->jatuh_tempo)->format('d-m-Y') }}</td>

@@ -11,7 +11,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
-            <form action="{{ route('user.komplain.store') }}" method="POST">
+            <form action="{{ route('user.komplain.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <!-- JUDUL -->
@@ -28,6 +28,11 @@
                     <textarea name="deskripsi" class="form-control" rows="5"
                               placeholder="Jelaskan kendala yang Anda alami secara detail"
                               required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Foto Bukti</label>
+                    <input type="file" name="foto" class="form-control" accept="image/*">
                 </div>
 
                 <!-- BUTTON -->
