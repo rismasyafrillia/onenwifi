@@ -64,11 +64,11 @@ Route::prefix('admin')
         Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])->name('komplain.show');
         Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])->name('komplain.update');
 
-        Route::get('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'index'])
+        Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])
         ->name('pengajuan.index');
-        Route::get('/pengajuan-berhenti/{id}', [PengajuanBerhentiController::class, 'show'])
+        Route::get('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'show'])
         ->name('pengajuan.show');
-        Route::put('/pengajuan-berhenti/{id}', [PengajuanBerhentiController::class, 'update'])
+        Route::put('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'update'])
         ->name('pengajuan.update');
 
         Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])
@@ -102,11 +102,11 @@ Route::prefix('user')
         Route::get('komplain/{id}', [UserKomplainController::class, 'show'])
              ->name('komplain.show');
 
-        Route::get('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'index'])
+        Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])
         ->name('pengajuan.index');
-        Route::get('/pengajuan-berhenti/create', [PengajuanBerhentiController::class, 'create'])
+        Route::get('/pengajuan-berhenti/create', [AdminPengajuanController::class, 'create'])
             ->name('pengajuan.create');
-        Route::post('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'store'])
+        Route::post('/pengajuan-berhenti', [AdminPengajuanController::class, 'store'])
             ->name('pengajuan.store');
         
         Route::get('tagihan', [TagihanUserController::class, 'index'])->name('tagihan.index');
