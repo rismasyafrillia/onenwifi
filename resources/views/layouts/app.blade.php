@@ -167,7 +167,6 @@
                     <a href="{{ route('admin.notifikasi.baca') }}"
                         class="btn btn-light position-relative"
                         data-bs-toggle="dropdown">
-                            data-bs-toggle="dropdown">
                         <i class="bi bi-bell fs-5"></i>
                         @if(auth()->user()->unreadNotifications->count())
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
