@@ -71,15 +71,13 @@ Route::prefix('admin')
         Route::put('/pengajuan-berhenti/{id}', [PengajuanBerhentiController::class, 'update'])
         ->name('pengajuan.update');
 
-        Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])
-                ->name('pengajuan.index');
-            Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])
-                ->name('pengajuan.show');
-            Route::put('/pengajuan/{id}', [AdminPengajuanController::class, 'update'])
-                ->name('pengajuan.update');
-        });
-        
+        Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])
+            ->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'show'])
+            ->name('pengajuan.show');
+        Route::put('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'update'])
+            ->name('pengajuan.update');
+
         Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
@@ -118,14 +116,12 @@ Route::prefix('user')
         Route::get('riwayat/{id}', [TagihanUserController::class, 'detail'])->name('riwayat.show');
         Route::get('riwayat/{id}/cetak',[TagihanUserController::class, 'cetak'])->name('riwayat.cetak');
 
-        Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
-            Route::get('/pengajuan', [UserPengajuanController::class, 'index'])
-                ->name('pengajuan.index');
-            Route::get('/pengajuan/create', [UserPengajuanController::class, 'create'])
-                ->name('pengajuan.create');
-            Route::post('/pengajuan', [UserPengajuanController::class, 'store'])
-                ->name('pengajuan.store');
-        });
+        Route::get('/pengajuan-berhenti', [UserPengajuanController::class, 'index'])
+            ->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/create', [UserPengajuanController::class, 'create'])
+            ->name('pengajuan.create');
+        Route::post('/pengajuan-berhenti', [UserPengajuanController::class, 'store'])
+            ->name('pengajuan.store');
 
         Route::get('profile', [UserDashboardController::class, 'profile'])
              ->name('profile');
