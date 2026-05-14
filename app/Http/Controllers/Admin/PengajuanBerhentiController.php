@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pelanggan;
 use App\Models\PengajuanBerhenti;
 use Illuminate\Http\Request;
 
@@ -11,11 +10,11 @@ class PengajuanBerhentiController extends Controller
 {
     public function index()
     {
-        $pengajuan = PengajuanBerhenti::with('pelanggan')
+        $pengajuans = PengajuanBerhenti::with('pelanggan')
             ->latest()
             ->get();
 
-        return view('admin.pengajuan.index', compact('pengajuan'));
+        return view('admin.pengajuan.index', compact('pengajuans'));
     }
 
     public function show($id)
@@ -29,7 +28,7 @@ class PengajuanBerhentiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required',
+            'status' => 'required|in:disetujui,ditolak',
             'catatan_admin' => 'nullable'
         ]);
 
@@ -40,16 +39,16 @@ class PengajuanBerhentiController extends Controller
             'catatan_admin' => $request->catatan_admin
         ]);
 
+        // jika disetujui → nonaktifkan pelanggan
         if ($request->status == 'disetujui') {
 
-            Pelanggan::where('id', $pengajuan->pelanggan_id)
-                ->update([
-                    'status' => 'nonaktif'
-                ]);
+            $pengajuan->pelanggan->update([
+                'status' => 'nonaktif'
+            ]);
         }
 
         return redirect()
             ->route('admin.pengajuan.index')
-            ->with('success', 'Pengajuan berhasil diproses');
+            ->with('success', 'Pengajuan berhasil diperbarui');
     }
 }
