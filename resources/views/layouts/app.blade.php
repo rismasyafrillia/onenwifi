@@ -114,6 +114,14 @@
             </li>
 
             <li>
+                <a href="{{ route('admin.pengajuan.index') }}"
+                class="nav-link {{ request()->routeIs('admin.pengajuan.*') ? 'active' : '' }}">
+                    <i class="bi bi-x-circle"></i>
+                    Pengajuan Berhenti
+                </a>
+            </li>
+
+            <li>
                 <a href="{{ route('admin.laporan.index') }}"
                    class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                     <i class="bi bi-bar-chart"></i>

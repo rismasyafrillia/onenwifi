@@ -200,6 +200,13 @@
             </li>
 
             <li class="nav-item">
+                <a href="{{ route('user.pengajuan.index') }}"
+                class="nav-link {{ request()->routeIs('user.pengajuan.*') ? 'active' : '' }}">
+                    <i class="bi bi-x-circle me-2"></i> Berhenti Berlangganan
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a href="{{ route('user.riwayat.index') }}"
                 class="nav-link {{ request()->routeIs('user.riwayat.*') ? 'active' : '' }}">
                     <i class="bi bi-clock-history me-2"></i> Riwayat Transaksi

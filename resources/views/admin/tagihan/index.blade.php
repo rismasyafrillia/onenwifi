@@ -3,8 +3,11 @@
 @section('content')
 <div class="container">
 
-    <div class="d-flex justify-content-between mb-3">
-        <h3>Data Tagihan</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    
+    <h3>Data Tagihan</h3>
+
+    <div class="d-flex gap-2">
 
         <form action="{{ route('admin.tagihan.generate') }}" method="POST">
             @csrf
@@ -12,34 +15,43 @@
                 <i class="bi bi-plus-circle"></i> Generate Tagihan Bulan Ini
             </button>
         </form>
-        
-        <form method="GET">
+
+        <form method="GET" class="d-flex gap-2">
+
             <select name="periode" class="form-select" onchange="this.form.submit()">
                 <option value="">Semua Periode</option>
+
                 @foreach($listPeriode as $p)
                     <option value="{{ $p }}" {{ request('periode') == $p ? 'selected' : '' }}>
                         {{ $p }}
                     </option>
                 @endforeach
             </select>
-        </form>
 
             <select name="status" class="form-select" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
-                <option value="belum bayar" {{ request('status') == 'belum bayar' ? 'selected' : '' }}>
+
+                <option value="belum bayar"
+                    {{ request('status') == 'belum bayar' ? 'selected' : '' }}>
                     Belum Bayar
                 </option>
-                <option value="menunggak" {{ request('status') == 'menunggak' ? 'selected' : '' }}>
+
+                <option value="menunggak"
+                    {{ request('status') == 'menunggak' ? 'selected' : '' }}>
                     Menunggak
                 </option>
-                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>
+
+                <option value="lunas"
+                    {{ request('status') == 'lunas' ? 'selected' : '' }}>
                     Lunas
                 </option>
             </select>
+
         </form>
 
     </div>
 
+</div>
     @foreach($tagihan as $periode => $items)
     <div class="card mb-4">
         <div class="card-header fw-bold">

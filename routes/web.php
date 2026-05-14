@@ -8,10 +8,12 @@ use App\Http\Controllers\Admin\PelangganController;
 use App\Http\Controllers\Admin\TagihanController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\KomplainController as AdminKomplainController;
+use App\Http\Controllers\Admin\PengajuanBerhentiController as AdminPengajuanController;
 
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\KomplainController as UserKomplainController;
 use App\Http\Controllers\User\TagihanUserController;
+use App\Http\Controllers\User\PengajuanBerhentiController as UserPengajuanController;
 
 use App\Http\Controllers\PushController;
 // use App\Http\Controllers\MidtransNotificationController;
@@ -62,6 +64,22 @@ Route::prefix('admin')
         Route::get('komplain/{id}', [AdminKomplainController::class, 'show'])->name('komplain.show');
         Route::put('komplain/{id}', [AdminKomplainController::class, 'update'])->name('komplain.update');
 
+        Route::get('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'index'])
+        ->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/{id}', [PengajuanBerhentiController::class, 'show'])
+        ->name('pengajuan.show');
+        Route::put('/pengajuan-berhenti/{id}', [PengajuanBerhentiController::class, 'update'])
+        ->name('pengajuan.update');
+
+        Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+            Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])
+                ->name('pengajuan.index');
+            Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])
+                ->name('pengajuan.show');
+            Route::put('/pengajuan/{id}', [AdminPengajuanController::class, 'update'])
+                ->name('pengajuan.update');
+        });
+        
         Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
@@ -86,12 +104,28 @@ Route::prefix('user')
         Route::get('komplain/{id}', [UserKomplainController::class, 'show'])
              ->name('komplain.show');
 
+        Route::get('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'index'])
+        ->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/create', [PengajuanBerhentiController::class, 'create'])
+            ->name('pengajuan.create');
+        Route::post('/pengajuan-berhenti', [PengajuanBerhentiController::class, 'store'])
+            ->name('pengajuan.store');
+        
         Route::get('tagihan', [TagihanUserController::class, 'index'])->name('tagihan.index');
         Route::get('tagihan/{id}', [TagihanUserController::class, 'show'])->name('tagihan.show');
         Route::post('tagihan/{id}/bayar', [TagihanUserController::class, 'bayar'])->name('tagihan.bayar');
         Route::get('riwayat', [TagihanUserController::class, 'riwayat'])->name('riwayat.index');
         Route::get('riwayat/{id}', [TagihanUserController::class, 'detail'])->name('riwayat.show');
         Route::get('riwayat/{id}/cetak',[TagihanUserController::class, 'cetak'])->name('riwayat.cetak');
+
+        Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+            Route::get('/pengajuan', [UserPengajuanController::class, 'index'])
+                ->name('pengajuan.index');
+            Route::get('/pengajuan/create', [UserPengajuanController::class, 'create'])
+                ->name('pengajuan.create');
+            Route::post('/pengajuan', [UserPengajuanController::class, 'store'])
+                ->name('pengajuan.store');
+        });
 
         Route::get('profile', [UserDashboardController::class, 'profile'])
              ->name('profile');

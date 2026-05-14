@@ -43,6 +43,18 @@
                         </div>
                     </div>
 
+                    @if($komplain->foto)
+                    <div class="mt-3">
+                        <label class="fw-semibold">Foto Bukti</label>
+
+                        <div class="mt-2">
+                            <img src="{{ asset('storage/' . $komplain->foto) }}"
+                                alt="Foto Komplain"
+                                class="img-fluid rounded border"
+                                style="max-height: 350px;">
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

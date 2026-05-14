@@ -16,6 +16,16 @@ class KomplainController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('judul', 'like', '%' . $request->search . '%')
+                ->orWhere('deskripsi', 'like', '%' . $request->search . '%')
+                ->orWhereHas('pelanggan', function ($p) use ($request) {
+                    $p->where('nama', 'like', '%' . $request->search . '%');
+                });
+            });
+        }
+
         $komplains = $query
             ->orderByRaw("
                 CASE 
