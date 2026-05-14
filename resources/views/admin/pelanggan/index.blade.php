@@ -16,6 +16,7 @@
             <table class="table table-bordered table-hover align-middle">
                 <thead class="table-dark">
                     <tr class="text-center">
+                        <th>ID</th>
                         <th>Nama</th>
                         <th>Alamat</th>
                         <th>Daerah</th>
@@ -30,6 +31,7 @@
 
                     @forelse ($pelanggan as $p)
                     <tr>
+                        <td>{{ $p->id }}</td>
                         <td>{{ $p->nama }}</td>
                         <td>{{ $p->alamat }}</td>
                         <td>{{ $p->daerah }}</td>
@@ -67,7 +69,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted">
+                        <td colspan="9" class="text-center text-muted">
                             Data pelanggan belum tersedia
                         </td>
                     </tr>

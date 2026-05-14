@@ -122,6 +122,14 @@
             </li>
 
             <li>
+                <a href="{{ route('admin.pengajuan-paket.index') }}"
+                class="nav-link {{ request()->routeIs('admin.pengajuan-paket.*') ? 'active' : '' }}">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Pengajuan Paket
+                </a>
+            </li>
+
+            <li>
                 <a href="{{ route('admin.laporan.index') }}"
                    class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                     <i class="bi bi-bar-chart"></i>
@@ -154,6 +162,46 @@
                     <span class="fw-semibold">Admin</span>
                 </div>
 
+                {{-- NOTIFIKASI --}}
+                <div class="dropdown">
+                    <a href="{{ route('admin.notifikasi.baca') }}"
+                        class="btn btn-light position-relative"
+                        data-bs-toggle="dropdown">
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        @if(auth()->user()->unreadNotifications->count())
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+                        </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow"
+                        style="width:320px; max-height:400px; overflow:auto;">
+                        @forelse(auth()->user()->notifications->take(10) as $notif)
+                            <li>
+                                <div class="dropdown-item small">
+                                    <strong>
+                                        {{ $notif->data['judul'] }}
+                                    </strong>
+                                    <br>
+                                    {{ $notif->data['pesan'] }}
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ $notif->created_at->diffForHumans() }}
+                                    </small>
+                                </div>
+                            </li>
+                        @empty
+                            <li>
+                                <span class="dropdown-item text-muted">
+                                    Tidak ada notifikasi
+                                </span>
+                            </li>
+                        @endforelse
+                    </ul>
+                </div>
+
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -171,6 +219,7 @@
 
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 {{-- SERVICE WORKER --}}
 <script>

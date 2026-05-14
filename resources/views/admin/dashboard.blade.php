@@ -9,6 +9,27 @@
         <small class="text-muted">Ringkasan data sistem OneN WiFi</small>
     </div>
 
+<form method="GET" class="mb-4">
+    <div class="row">
+
+        <div class="col-md-3">
+            <select name="periode"
+                    class="form-select"
+                    onchange="this.form.submit()">
+
+                @foreach($listPeriode as $p)
+                    <option value="{{ $p }}"
+                        {{ $periode == $p ? 'selected' : '' }}>
+                        {{ $p }}
+                    </option>
+                @endforeach
+
+            </select>
+        </div>
+
+    </div>
+</form>
+
     {{-- KARTU RINGKASAN --}}
 <div class="row g-4 mb-4">
 

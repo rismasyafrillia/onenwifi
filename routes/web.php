@@ -9,11 +9,13 @@ use App\Http\Controllers\Admin\TagihanController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\KomplainController as AdminKomplainController;
 use App\Http\Controllers\Admin\PengajuanBerhentiController as AdminPengajuanController;
+use App\Http\Controllers\Admin\PengajuanPaketController as AdminPengajuanPaketController;
 
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\KomplainController as UserKomplainController;
 use App\Http\Controllers\User\TagihanUserController;
 use App\Http\Controllers\User\PengajuanBerhentiController as UserPengajuanController;
+use App\Http\Controllers\User\PengajuanPaketController as UserPengajuanPaketController;
 
 use App\Http\Controllers\PushController;
 // use App\Http\Controllers\MidtransNotificationController;
@@ -71,12 +73,15 @@ Route::prefix('admin')
         Route::put('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'update'])
         ->name('pengajuan.update');
 
-        Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])
-            ->name('pengajuan.index');
-        Route::get('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'show'])
-            ->name('pengajuan.show');
-        Route::put('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'update'])
-            ->name('pengajuan.update');
+        Route::get('/pengajuan-berhenti', [AdminPengajuanController::class, 'index'])->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'show'])->name('pengajuan.show');
+        Route::put('/pengajuan-berhenti/{id}', [AdminPengajuanController::class, 'update'])->name('pengajuan.update');
+
+        Route::get('/pengajuan-paket', [AdminPengajuanPaketController::class, 'index'])->name('pengajuan-paket.index');
+        Route::get('/pengajuan-paket/{id}', [AdminPengajuanPaketController::class, 'show'])->name('pengajuan-paket.show');
+        Route::put('/pengajuan-paket/{id}', [AdminPengajuanPaketController::class, 'update'])->name('pengajuan-paket.update');
+
+        Route::get('/notifikasi/baca', function () {auth()->user()->unreadNotifications->markAsRead();return back();})->name('notifikasi.baca');
 
         Route::post('/logout', function () {
         Auth::logout();
@@ -116,12 +121,13 @@ Route::prefix('user')
         Route::get('riwayat/{id}', [TagihanUserController::class, 'detail'])->name('riwayat.show');
         Route::get('riwayat/{id}/cetak',[TagihanUserController::class, 'cetak'])->name('riwayat.cetak');
 
-        Route::get('/pengajuan-berhenti', [UserPengajuanController::class, 'index'])
-            ->name('pengajuan.index');
-        Route::get('/pengajuan-berhenti/create', [UserPengajuanController::class, 'create'])
-            ->name('pengajuan.create');
-        Route::post('/pengajuan-berhenti', [UserPengajuanController::class, 'store'])
-            ->name('pengajuan.store');
+        Route::get('/pengajuan-berhenti', [UserPengajuanController::class, 'index'])->name('pengajuan.index');
+        Route::get('/pengajuan-berhenti/create', [UserPengajuanController::class, 'create'])->name('pengajuan.create');
+        Route::post('/pengajuan-berhenti', [UserPengajuanController::class, 'store'])->name('pengajuan.store');
+
+        Route::get('/pengajuan-paket', [UserPengajuanPaketController::class, 'index'])->name('pengajuan-paket.index');
+        Route::get('/pengajuan-paket/create', [UserPengajuanPaketController::class, 'create'])->name('pengajuan-paket.create');
+        Route::post('/pengajuan-paket', [UserPengajuanPaketController::class, 'store'])->name('pengajuan-paket.store');
 
         Route::get('profile', [UserDashboardController::class, 'profile'])
              ->name('profile');

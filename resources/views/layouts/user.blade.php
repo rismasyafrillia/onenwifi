@@ -207,6 +207,14 @@
             </li>
 
             <li class="nav-item">
+                <a href="{{ route('user.pengajuan-paket.index') }}"
+                class="nav-link {{ request()->routeIs('user.pengajuan-paket.*') ? 'active' : '' }}">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Pengajuan Paket
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a href="{{ route('user.riwayat.index') }}"
                 class="nav-link {{ request()->routeIs('user.riwayat.*') ? 'active' : '' }}">
                     <i class="bi bi-clock-history me-2"></i> Riwayat Transaksi

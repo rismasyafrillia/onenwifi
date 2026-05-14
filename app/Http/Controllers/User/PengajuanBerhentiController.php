@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use App\Models\PengajuanBerhenti;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\AdminNotification;
 
 class PengajuanBerhentiController extends Controller
 {
@@ -38,6 +40,14 @@ class PengajuanBerhentiController extends Controller
             'alasan'       => $request->alasan,
             'status'       => 'menunggu'
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminNotification(
+                'Pengajuan Berhenti',
+                $pelanggan->nama . ' mengajukan berhenti berlangganan'
+            ));
+        }
 
         return redirect()
             ->route('user.pengajuan.index')

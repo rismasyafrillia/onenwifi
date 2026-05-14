@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Komplain;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\AdminNotification;
 
 class KomplainController extends Controller
 {
@@ -50,7 +52,7 @@ class KomplainController extends Controller
             $foto = $request->file('foto')->store('komplain', 'public');
         }
 
-        Komplain::create([
+        $komplain = Komplain::create([
             'pelanggan_id' => $pelanggan->id,
             'judul'        => $request->judul,
             'deskripsi'    => $request->deskripsi,
@@ -58,6 +60,14 @@ class KomplainController extends Controller
             'foto' => $foto
         ]);
 
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminNotification(
+                'Komplain Baru',
+                $pelanggan->nama . ' mengirim komplain baru'
+            ));
+        }
+        
         return redirect()
             ->route('user.komplain.index')
             ->with('success', 'Komplain berhasil dikirim');

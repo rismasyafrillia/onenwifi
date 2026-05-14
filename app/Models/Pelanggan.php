@@ -44,4 +44,9 @@ class Pelanggan extends Model
     {
         return $this->hasMany(Komplain::class);
     }
+    
+    public function pengajuanPakets()
+    {
+        return $this->hasMany(PengajuanPaket::class);
+    }
 }

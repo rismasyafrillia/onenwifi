@@ -13,6 +13,8 @@ use Midtrans\Notification;
 use App\Services\WhatsAppService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Notifications\AdminNotification;
 
 class TagihanUserController extends Controller
 {
@@ -96,6 +98,14 @@ class TagihanUserController extends Controller
             'metode'       => 'qris',
             'status'       => 'belum bayar',
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminNotification(
+                'Pembayaran Baru',
+                $pelanggan->nama . ' telah melakukan pembayaran tagihan'
+            ));
+        }
 
         $itemDetails = [];
 

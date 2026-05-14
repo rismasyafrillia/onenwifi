@@ -56,6 +56,19 @@ class PelangganController extends Controller
             'tanggal_aktif'     => now()
         ]);
 
+        if ($request->no_hp) {
+            $message = "Halo {$request->nama},
+        Akun OneN WiFi Anda berhasil dibuat.
+        Berikut data login Anda:
+        Username : {$user->email}
+        Password : 12345678
+
+        Silakan login ke aplikasi OneN WiFi.
+        Terima kasih 🙏";
+
+            WhatsAppService::send($request->no_hp, $message);
+        }
+
         return redirect()
             ->route('admin.pelanggan.index')
             ->with('success', 'Pelanggan berhasil ditambahkan');
