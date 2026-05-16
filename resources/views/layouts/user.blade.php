@@ -244,53 +244,6 @@
             <i class="bi bi-list"></i> Menu
         </button>
 
-        <div class="d-flex justify-content-end mb-3">
-        <div class="dropdown">
-            <button class="btn btn-light shadow-sm position-relative rounded-circle"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    style="width:45px;height:45px;">
-                <i class="bi bi-bell fs-5"></i>
-
-                @if(auth()->user()->unreadNotifications->count())
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ auth()->user()->unreadNotifications->count() }}
-                    </span>
-                @endif
-            </button>
-
-            <div class="dropdown-menu dropdown-menu-end border-0 shadow overflow-hidden"
-                style="width:340px; border-radius:16px;">
-                <div class="px-3 py-3 border-bottom bg-light">
-                    <h6 class="fw-bold mb-0">
-                        Notifikasi
-                    </h6>
-                </div>
-
-                <div style="max-height:400px; overflow-y:auto;">
-                    @forelse(auth()->user()->notifications->take(10) as $notif)
-                        <div class="dropdown-item py-3 border-bottom">
-                            <div class="fw-semibold">
-                                {{ $notif->data['judul'] ?? '-' }}
-                            </div>
-                            <small class="text-muted">
-                                {{ $notif->data['pesan'] ?? '-' }}
-                            </small>
-                            <br>
-                            <small class="text-secondary">
-                                {{ $notif->created_at->diffForHumans() }}
-                            </small>
-                        </div>
-                    @empty
-                        <div class="text-center py-4 text-muted">
-                            Tidak ada notifikasi
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-    </div>
-
         @yield('content')
     </div>
 

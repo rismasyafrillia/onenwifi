@@ -194,7 +194,7 @@
                         </div>
                         <div style="max-height:420px; overflow-y:auto;">
                             @forelse(auth()->user()->notifications->take(10) as $notif)
-                                <a href="{{ $notif->data['url'] ?? '#' }}"
+                                <a href="{{ route('admin.notifikasi.redirect', $notif->id) }}"
                                 class="dropdown-item border-bottom py-3 px-3 notif-item
                                 {{ is_null($notif->read_at) ? 'bg-light' : '' }}">
 
