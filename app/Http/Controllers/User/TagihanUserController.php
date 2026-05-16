@@ -99,6 +99,8 @@ class TagihanUserController extends Controller
             'status'       => 'belum bayar',
         ]);
 
+        $pelanggan = $tagihan->pelanggan;
+
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
             $admin->notify(new AdminNotification(
