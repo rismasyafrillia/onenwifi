@@ -105,7 +105,8 @@ class TagihanUserController extends Controller
         foreach ($admins as $admin) {
             $admin->notify(new AdminNotification(
                 'Pembayaran Baru',
-                $pelanggan->nama . ' telah melakukan pembayaran tagihan'
+                $pelanggan->nama . ' telah melakukan pembayaran tagihan',
+                route('admin.tagihan.index')
             ));
         }
 

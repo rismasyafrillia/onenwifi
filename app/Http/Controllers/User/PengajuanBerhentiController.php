@@ -35,7 +35,7 @@ class PengajuanBerhentiController extends Controller
 
         $pelanggan = Pelanggan::where('user_id', auth()->id())->first();
 
-        PengajuanBerhenti::create([
+        $pengajuan = PengajuanBerhenti::create([
             'pelanggan_id' => $pelanggan->id,
             'alasan'       => $request->alasan,
             'status'       => 'menunggu'
@@ -45,7 +45,8 @@ class PengajuanBerhentiController extends Controller
         foreach ($admins as $admin) {
             $admin->notify(new AdminNotification(
                 'Pengajuan Berhenti',
-                $pelanggan->nama . ' mengajukan berhenti berlangganan'
+                $pelanggan->nama . ' mengajukan berhenti berlangganan',
+                route('admin.pengajuan.show', $pengajuan->id)
             ));
         }
 

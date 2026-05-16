@@ -11,11 +11,13 @@ class AdminNotification extends Notification
 
     protected $judul;
     protected $pesan;
+    protected $url;
 
-    public function __construct($judul, $pesan)
+    public function __construct($judul, $pesan, $url)
     {
         $this->judul = $judul;
         $this->pesan = $pesan;
+        $this->url = $url;
     }
 
     public function via($notifiable)
@@ -23,11 +25,12 @@ class AdminNotification extends Notification
         return ['database'];
     }
 
-    public function toDatabase($notifiable)
+    public function toArray($notifiable)
     {
         return [
             'judul' => $this->judul,
             'pesan' => $this->pesan,
+            'url'   => $this->url,
         ];
     }
 }

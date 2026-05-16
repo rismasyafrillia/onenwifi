@@ -62,7 +62,7 @@ class PelangganController extends Controller
         Akun OneN WiFi Anda berhasil dibuat.
         Berikut data login Anda:
         Username : {$user->email}
-        Password : {$password}
+        Password : 12345678
 
         Silakan login ke aplikasi OneN WiFi.
         Terima kasih 🙏";

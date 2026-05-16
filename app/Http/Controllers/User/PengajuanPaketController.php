@@ -56,7 +56,7 @@ class PengajuanPaketController extends Controller
 
         $pelanggan = Pelanggan::where('user_id', $user->id)->first();
 
-        PengajuanPaket::create([
+        $pengajuan = PengajuanPaket::create([
             'pelanggan_id' => $pelanggan->id,
             'paket_lama_id' => $pelanggan->paket_id,
             'paket_baru_id' => $request->paket_baru_id,
@@ -68,7 +68,8 @@ class PengajuanPaketController extends Controller
         foreach ($admins as $admin) {
             $admin->notify(new AdminNotification(
                 'Perubahan Paket',
-                $pelanggan->nama . ' mengajukan perubahan paket'
+                $pelanggan->nama . ' mengajukan perubahan paket',
+                route('admin.pengajuan-paket.show', $pengajuan->id)
             ));
         }
 

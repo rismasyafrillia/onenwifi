@@ -64,7 +64,8 @@ class KomplainController extends Controller
         foreach ($admins as $admin) {
             $admin->notify(new AdminNotification(
                 'Komplain Baru',
-                $pelanggan->nama . ' mengirim komplain baru'
+                $pelanggan->nama . ' mengirim komplain baru',
+                route('admin.komplain.show', $komplain->id)
             ));
         }
         

@@ -150,7 +150,7 @@
     <div class="flex-grow-1 content-wrapper">
 
         {{-- TOPBAR --}}
-        <div class="topbar d-flex justify-content-between align-items-center">
+        <div class="topbar d-flex justify-content-between align-items-center shadow-sm">
             <h6 class="mb-0 fw-semibold">
                 Sistem Informasi Tagihan & Pembayaran WiFi
             </h6>
@@ -164,41 +164,81 @@
 
                 {{-- NOTIFIKASI --}}
                 <div class="dropdown">
-                    <a href="{{ route('admin.notifikasi.baca') }}"
-                        class="btn btn-light position-relative"
-                        data-bs-toggle="dropdown">
+                    <button class="btn btn-light position-relative border-0 shadow-sm rounded-circle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            style="width:45px;height:45px;">
                         <i class="bi bi-bell fs-5"></i>
-                        @if(auth()->user()->unreadNotifications->count())
+                        @if(auth()->user()->unreadNotifications->count() > 0)
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 {{ auth()->user()->unreadNotifications->count() }}
                             </span>
                         @endif
-                        </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end shadow"
-                        style="width:320px; max-height:400px; overflow:auto;">
-                        @forelse(auth()->user()->notifications->take(10) as $notif)
-                            <li>
-                                <div class="dropdown-item small">
-                                    <strong>
-                                        {{ $notif->data['judul'] }}
-                                    </strong>
-                                    <br>
-                                    {{ $notif->data['pesan'] }}
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ $notif->created_at->diffForHumans() }}
-                                    </small>
-                                </div>
-                            </li>
-                        @empty
-                            <li>
-                                <span class="dropdown-item text-muted">
-                                    Tidak ada notifikasi
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end border-0 shadow p-0 overflow-hidden"
+                        style="width:360px; border-radius:16px;">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-light">
+                            <div>
+                                <h6 class="mb-0 fw-bold">
+                                    Notifikasi
+                                </h6>
+                                <small class="text-muted">
+                                    Aktivitas terbaru sistem
+                                </small>
+                            </div>
+                            @if(auth()->user()->unreadNotifications->count())
+                                <span class="badge bg-danger">
+                                    {{ auth()->user()->unreadNotifications->count() }}
                                 </span>
-                            </li>
-                        @endforelse
-                    </ul>
+                            @endif
+                        </div>
+                        <div style="max-height:420px; overflow-y:auto;">
+                            @forelse(auth()->user()->notifications->take(10) as $notif)
+                                <a href="{{ $notif->data['url'] ?? '#' }}"
+                                class="dropdown-item border-bottom py-3 px-3 notif-item
+                                {{ is_null($notif->read_at) ? 'bg-light' : '' }}">
+
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <div class="notif-icon">
+                                                <i class="bi bi-bell-fill"></i>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-grow-1">
+
+                                            <div class="fw-semibold text-dark">
+                                                {{ $notif->data['judul'] ?? '-' }}
+                                            </div>
+                                            <small class="text-muted d-block mt-1">
+                                                {{ $notif->data['pesan'] ?? '-' }}
+                                            </small>
+                                            <small class="text-secondary">
+                                                {{ $notif->created_at->diffForHumans() }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="text-center py-5">
+                                    <i class="bi bi-bell-slash fs-1 text-muted"></i>
+                                    <div class="text-muted mt-2">
+                                        Belum ada notifikasi
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        @if(auth()->user()->notifications->count())
+                        <div class="border-top p-2 bg-white">
+
+                            <a href="{{ route('admin.notifikasi.baca') }}"
+                            class="btn btn-primary btn-sm w-100 rounded-pill">
+                                Tandai Semua Dibaca
+                            </a>
+                        </div>
+                        @endif
+                    </div>
                 </div>
 
                 <form action="{{ route('admin.logout') }}" method="POST">
@@ -210,6 +250,25 @@
 
             </div>
         </div>
+
+        .notif-item {
+    transition: .2s ease;
+}
+
+.notif-item:hover {
+    background: #f8f9fa;
+}
+
+.notif-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(13,110,253,.1);
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
         {{-- PAGE CONTENT --}}
         <main class="p-4">
