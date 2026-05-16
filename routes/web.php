@@ -82,8 +82,8 @@ Route::prefix('admin')
         Route::put('/pengajuan-paket/{id}', [AdminPengajuanPaketController::class, 'update'])->name('pengajuan-paket.update');
 
         Route::get('/notifikasi/baca', function () {auth()->user()->unreadNotifications->markAsRead();return back();})->name('notifikasi.baca');
-        Route::get('/admin/notifikasi/{id}', function ($id) {$notif = auth()->user()->notifications()->findOrFail($id);$notif->markAsRead();
-        return redirect($notif->data['url'] ?? '/admin');})->name('admin.notifikasi.redirect');
+        Route::get('/notifikasi/{id}', function ($id) {$notif = auth()->user()->notifications()->findOrFail($id);$notif->markAsRead();
+        return redirect($notif->data['url'] ?? '/admin');})->name('notifikasi.redirect');
 
         Route::post('/logout', function () {
         Auth::logout();
