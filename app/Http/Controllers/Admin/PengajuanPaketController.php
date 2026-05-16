@@ -42,6 +42,15 @@ class PengajuanPaketController extends Controller
 
         $pengajuan = PengajuanPaket::findOrFail($id);
 
+        // hanya bisa awal bulan
+        if (now()->day > 5 && $request->status == 'disetujui') {
+
+            return back()->with(
+                'error',
+                'Perubahan paket hanya bisa diproses tanggal 1 - 5 setiap bulan'
+            );
+        }
+
         $pengajuan->update([
             'status' => $request->status,
             'catatan_admin' => $request->catatan_admin

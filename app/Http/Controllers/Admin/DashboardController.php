@@ -15,6 +15,8 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $mode = $request->mode ?? 'semua';
+
         $periode = $request->periode ?? now()->format('m-Y');
 
         $listPeriode = Tagihan::select('periode')
@@ -22,29 +24,41 @@ class DashboardController extends Controller
             ->orderByDesc('periode')
             ->pluck('periode');
 
-        $totalPelanggan = Pelanggan::count();
+        // QUERY DASAR
+        $tagihanQuery = Tagihan::query();
 
-        $tagihanBulanIni = Tagihan::where('periode', $periode)
+        if ($mode == 'periode') {
+            $tagihanQuery->where('periode', $periode);
+        }
+
+        // CARD DASHBOARD
+        $totalPelanggan = Pelanggan::where('status', 'aktif')->count();
+
+        // "Tagihan Bulan Ini" = yang belum bayar
+        $tagihanBulanIni = (clone $tagihanQuery)
+            ->where('status', 'belum bayar')
             ->count();
 
-        $tagihanMenunggak = Tagihan::where('periode', $periode)
+        $tagihanMenunggak = (clone $tagihanQuery)
             ->where('status', 'menunggak')
             ->count();
 
-        $tagihanLunas = Tagihan::where('periode', $periode)
+        $tagihanLunas = (clone $tagihanQuery)
             ->where('status', 'lunas')
             ->count();
 
         $komplainBaru = Komplain::where('status', 'baru')->count();
 
         $totalPembayaranBulanIni = Pembayaran::where('status', 'success')
-            ->whereHas('tagihan', function ($q) use ($periode) {
-                $q->where('periode', $periode);
+            ->when($mode == 'periode', function ($q) use ($periode) {
+                $q->whereHas('tagihan', function ($qq) use ($periode) {
+                    $qq->where('periode', $periode);
+                });
             })
             ->sum('nominal');
 
         // =========================
-        // GRAFIK
+        // GRAFIK PER BULAN
         // =========================
 
         $bulanLabel = [];
@@ -57,7 +71,8 @@ class DashboardController extends Controller
 
             $bulan = str_pad($i, 2, '0', STR_PAD_LEFT) . '-' . $tahun;
 
-            $bulanLabel[] = Carbon::create()->month($i)->translatedFormat('F');
+            $bulanLabel[] = Carbon::create()->month($i)
+                ->translatedFormat('F');
 
             $dataMenunggak[] = Tagihan::where('periode', $bulan)
                 ->where('status', 'menunggak')
@@ -77,21 +92,25 @@ class DashboardController extends Controller
 
         $daerahData = DB::table('tagihans')
             ->join('pelanggan', 'pelanggan.id', '=', 'tagihans.pelanggan_id')
-            ->select('pelanggan.daerah', DB::raw('COUNT(tagihans.id) as total'))
+            ->select(
+                'pelanggan.daerah',
+                DB::raw('COUNT(tagihans.id) as total')
+            )
             ->where('tagihans.status', 'menunggak')
-            ->where('tagihans.periode', $periode)
+            ->when($mode == 'periode', function ($q) use ($periode) {
+                $q->where('tagihans.periode', $periode);
+            })
             ->groupBy('pelanggan.daerah')
             ->orderByDesc('total')
             ->get();
 
         foreach ($daerahData as $row) {
-
             $daerahLabel[] = $row->daerah ?? 'Tidak Diketahui';
-
             $daerahMenunggak[] = $row->total;
         }
 
         return view('admin.dashboard', compact(
+            'mode',
             'periode',
             'listPeriode',
             'totalPelanggan',
@@ -112,11 +131,10 @@ class DashboardController extends Controller
     {
         $pembayarans = Pembayaran::with(['tagihan.pelanggan'])
             ->where('status', 'success')
-            ->whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
             ->latest('paid_at')
             ->get();
 
-        return view('admin.pembayaran.bulan_ini', compact('pembayarans'));
+        return view('admin.pembayaran.bulan_ini',compact('pembayarans')
+        );
     }
 }

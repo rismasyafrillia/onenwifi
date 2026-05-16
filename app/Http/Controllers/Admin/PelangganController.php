@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Services\WhatsAppService;
 
 class PelangganController extends Controller
 {
@@ -61,7 +62,7 @@ class PelangganController extends Controller
         Akun OneN WiFi Anda berhasil dibuat.
         Berikut data login Anda:
         Username : {$user->email}
-        Password : 12345678
+        Password : {$password}
 
         Silakan login ke aplikasi OneN WiFi.
         Terima kasih 🙏";

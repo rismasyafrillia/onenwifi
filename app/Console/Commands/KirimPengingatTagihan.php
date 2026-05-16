@@ -18,18 +18,20 @@ class KirimPengingatTagihan extends Command
 
         try {
 
+            // Ambil semua tagihan belum bayar / menunggak
             $tagihans = Tagihan::with('pelanggan')
                 ->whereIn('status', ['belum bayar', 'menunggak'])
-                ->get();
+                ->get()
+                ->groupBy('pelanggan_id');
 
-            Log::info('Jumlah tagihan: ' . $tagihans->count());
+            Log::info('Jumlah pelanggan ditagih: ' . $tagihans->count());
 
-            foreach ($tagihans as $tagihan) {
+            foreach ($tagihans as $pelangganId => $listTagihan) {
 
-                $pelanggan = $tagihan->pelanggan;
+                $pelanggan = $listTagihan->first()->pelanggan;
 
                 if (!$pelanggan) {
-                    Log::warning("Tagihan ID {$tagihan->id} tidak punya pelanggan");
+                    Log::warning("Pelanggan tidak ditemukan");
                     continue;
                 }
 
@@ -40,17 +42,34 @@ class KirimPengingatTagihan extends Command
 
                 try {
 
-                    $message = "Halo {$pelanggan->nama},\n\n"
-                        . "Pengingat pembayaran tagihan bulan {$tagihan->periode}.\n"
-                        . "Total: Rp " . number_format($tagihan->nominal, 0, ',', '.')
-                        . "\n\nMohon segera lakukan pembayaran.\n\n"
-                        . "Terima kasih.";
+                    $message = "Halo {$pelanggan->nama},\n\n";
+                    $message .= "Berikut tagihan Anda yang belum dibayar:\n\n";
 
-                    $response = WhatsAppService::send($pelanggan->no_hp, $message);
+                    $total = 0;
+
+                    foreach ($listTagihan as $tagihan) {
+
+                        $message .= "- {$tagihan->periode} : Rp "
+                            . number_format($tagihan->nominal, 0, ',', '.')
+                            . "\n";
+
+                        $total += $tagihan->nominal;
+                    }
+
+                    $message .= "\nTotal Tagihan: Rp "
+                        . number_format($total, 0, ',', '.');
+
+                    $message .= "\n\nMohon segera lakukan pembayaran.";
+                    $message .= "\n\nTerima kasih.";
+
+                    $response = WhatsAppService::send(
+                        $pelanggan->no_hp,
+                        $message
+                    );
 
                     if (isset($response['status']) && $response['status'] == true) {
 
-                        Log::info("Berhasil kirim ke {$pelanggan->nama} - {$pelanggan->no_hp}");
+                        Log::info("Berhasil kirim ke {$pelanggan->nama}");
 
                     } else {
 
@@ -64,7 +83,7 @@ class KirimPengingatTagihan extends Command
                     Log::error($e->getMessage());
                 }
 
-                sleep(1); // jeda biar tidak spam API
+                sleep(1);
             }
 
             $this->info('Pengingat selesai dikirim');
