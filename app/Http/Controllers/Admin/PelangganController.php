@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\WhatsAppService;
+use App\Notifications\AdminNotification;
 
 class PelangganController extends Controller
 {
@@ -44,7 +45,7 @@ class PelangganController extends Controller
             'role'     => 'user',
         ]);
 
-        Pelanggan::create([
+        $pelanggan  = Pelanggan::create([
             'user_id'           => $user->id,
             'nama'              => $request->nama,
             'alamat'            => $request->alamat,
@@ -56,6 +57,15 @@ class PelangganController extends Controller
             'bayar_awal'        => $request->bayar_awal,
             'tanggal_aktif'     => now()
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminNotification(
+                'Pelanggan Baru',
+                $pelanggan->nama . ' berhasil ditambahkan',
+                route('admin.pelanggan.index')
+            ));
+        }
 
         if ($request->no_hp) {
             $message = "Halo {$request->nama},

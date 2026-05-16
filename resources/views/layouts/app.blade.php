@@ -251,7 +251,8 @@
             </div>
         </div>
 
-        .notif-item {
+<style>
+.notif-item {
     transition: .2s ease;
 }
 
@@ -269,6 +270,7 @@
     align-items: center;
     justify-content: center;
 }
+</style>
 
         {{-- PAGE CONTENT --}}
         <main class="p-4">
