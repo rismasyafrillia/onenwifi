@@ -68,18 +68,18 @@ class PelangganController extends Controller
         }
 
         if ($request->no_hp) {
-            $message = "Halo {$request->nama},
-        Akun OneN WiFi Anda berhasil dibuat.
-        Berikut data login Anda:
-        Username : {$user->email}
-        Password : 12345678
-
-        Silakan login ke aplikasi OneN WiFi.
-        Terima kasih 🙏";
+        $message = "Halo {$request->nama},\n\n"
+            . "Akun OneN WiFi Anda berhasil dibuat.\n"
+            . "Berikut data login Anda:\n\n"
+            . "Username: {$user->email}\n"
+            . "Password: 12345678\n\n"
+            . "Silakan login ke aplikasi OneN WiFi.\n"
+            . "Terima kasih 🙏";
 
         $nohp = preg_replace('/^0/', '62', $request->no_hp);
-            WhatsAppService::send($nohp, $message);
-        }
+
+        WhatsAppService::send($nohp, $message);
+    }
 
         return redirect()
             ->route('admin.pelanggan.index')
