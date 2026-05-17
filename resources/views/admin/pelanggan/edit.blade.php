@@ -48,14 +48,13 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Paket Internet</label>
-                        <select name="paket_id" class="form-select" required>
-                            @foreach($pakets as $paket)
-                                <option value="{{ $paket->id }}"
-                                    {{ $pelanggan->paket_id == $paket->id ? 'selected' : '' }}>
-                                    {{ $paket->nama_paket }} - Rp {{ number_format($paket->harga) }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="text"
+                            class="form-control"
+                            value="{{ $pelanggan->paket->nama_paket }} - Rp {{ number_format($pelanggan->paket->harga) }}"
+                            readonly>
+                        <small class="text-muted">
+                            Perubahan paket hanya dapat dilakukan melalui pengajuan pelanggan.
+                        </small>
                     </div>
 
                     <div class="col-md-6 mb-3">

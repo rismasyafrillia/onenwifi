@@ -103,7 +103,7 @@ class PelangganController extends Controller
         ]);
 
         Pelanggan::findOrFail($id)->update($request->only([
-            'nama', 'alamat', 'no_hp', 'paket_id', 'status'
+            'nama', 'alamat', 'no_hp', 'status'
         ]));
 
         return redirect()
