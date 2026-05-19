@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanPaket;
 use Illuminate\Http\Request;
+use App\Services\WhatsAppService;
 
 class PengajuanPaketController extends Controller
 {
@@ -40,7 +41,11 @@ class PengajuanPaketController extends Controller
             'catatan_admin' => 'nullable'
         ]);
 
-        $pengajuan = PengajuanPaket::findOrFail($id);
+        $pengajuan = PengajuanPaket::with([
+                'pelanggan',
+                'paketBaru'
+            ])
+            ->findOrFail($id);
 
         // hanya bisa awal bulan
         if (now()->day > 5 && $request->status == 'disetujui') {
@@ -63,6 +68,31 @@ class PengajuanPaketController extends Controller
                 'paket_id' => $pengajuan->paket_baru_id
             ]);
         }
+
+        // kirim WhatsApp
+        $nama = $pengajuan->pelanggan->nama;
+        $status = ucfirst($request->status);
+        $paketBaru = $pengajuan->paketBaru->nama_paket ?? '-';
+
+        $pesan = "Halo $nama,\n\n"
+            . "Pengajuan perubahan paket Anda telah divalidasi admin.\n"
+            . "Status pengajuan: *$status*.\n";
+
+        if ($request->status == 'disetujui') {
+            $pesan .= "Paket baru: *$paketBaru*.\n";
+        }
+
+        if ($request->catatan_admin) {
+            $pesan .= "\nCatatan Admin:\n"
+                . $request->catatan_admin . "\n";
+        }
+
+        $pesan .= "\nTerima kasih.";
+
+        WhatsAppService::send(
+            $pengajuan->pelanggan->no_hp,
+            $pesan
+        );
 
         return redirect()
             ->route('admin.pengajuan-paket.index')

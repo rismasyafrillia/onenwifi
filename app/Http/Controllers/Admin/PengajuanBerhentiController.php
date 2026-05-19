@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanBerhenti;
 use Illuminate\Http\Request;
+use App\Services\WhatsAppService;
 
 class PengajuanBerhentiController extends Controller
 {
@@ -32,7 +33,8 @@ class PengajuanBerhentiController extends Controller
             'catatan_admin' => 'nullable'
         ]);
 
-        $pengajuan = PengajuanBerhenti::findOrFail($id);
+        $pengajuan = PengajuanBerhenti::with('pelanggan')
+            ->findOrFail($id);
 
         $pengajuan->update([
             'status' => $request->status,
@@ -46,6 +48,26 @@ class PengajuanBerhentiController extends Controller
                 'status' => 'nonaktif'
             ]);
         }
+
+        // kirim WhatsApp
+        $nama = $pengajuan->pelanggan->nama;
+        $status = ucfirst($request->status);
+
+        $pesan = "Halo $nama,\n\n"
+            . "Pengajuan berhenti langganan Anda telah divalidasi admin.\n"
+            . "Status pengajuan: *$status*.\n\n";
+
+        if ($request->catatan_admin) {
+            $pesan .= "Catatan Admin:\n"
+                . $request->catatan_admin . "\n\n";
+        }
+
+        $pesan .= "Terima kasih.";
+
+        WhatsAppService::send(
+            $pengajuan->pelanggan->no_hp,
+            $pesan
+        );
 
         return redirect()
             ->route('admin.pengajuan.index')

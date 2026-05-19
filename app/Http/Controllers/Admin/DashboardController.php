@@ -49,17 +49,9 @@ class DashboardController extends Controller
 
         $komplainBaru = Komplain::where('status', 'baru')->count();
 
-        $totalPembayaranBulanIni = Pembayaran::where('status', 'success')
-            ->when($mode == 'periode', function ($q) use ($periode) {
-                $q->whereHas('tagihan', function ($qq) use ($periode) {
-                    $qq->where('periode', $periode);
-                });
-            })
+        $totalPembayaranBulanIni = (clone $tagihanQuery)
+            ->where('status', 'lunas')
             ->sum('nominal');
-
-        // =========================
-        // GRAFIK PER BULAN
-        // =========================
 
         $bulanLabel = [];
         $dataMenunggak = [];
@@ -83,9 +75,6 @@ class DashboardController extends Controller
                 ->count();
         }
 
-        // =========================
-        // MENUNGGAK PER DAERAH
-        // =========================
 
         $daerahLabel = [];
         $daerahMenunggak = [];
