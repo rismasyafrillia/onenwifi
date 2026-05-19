@@ -99,16 +99,16 @@ class TagihanUserController extends Controller
             'status'       => 'belum bayar',
         ]);
 
-        $pelanggan = $tagihan->pelanggan;
+        // $pelanggan = $tagihan->pelanggan;
 
-        $admins = User::where('role', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new AdminNotification(
-                'Pembayaran Baru',
-                $pelanggan->nama . ' telah melakukan pembayaran tagihan',
-                route('admin.tagihan.index')
-            ));
-        }
+        // $admins = User::where('role', 'admin')->get();
+        // foreach ($admins as $admin) {
+        //     $admin->notify(new AdminNotification(
+        //         'Pembayaran Baru',
+        //         $pelanggan->nama . ' telah melakukan pembayaran tagihan',
+        //         route('admin.tagihan.index')
+        //     ));
+        // }
 
         $itemDetails = [];
 

@@ -52,6 +52,14 @@ class MidtransCallbackController extends Controller
 
             Log::info('Payment SUCCESS for Order ID: ' . $request->order_id);
 
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new AdminNotification(
+                    'Pembayaran Berhasil',
+                    $pelanggan->nama . ' sudah melakukan pembayaran periode ' . $tagihan->periode,
+                    route('admin.tagihan.index')
+                ));
+            }
             // Cegah double proses
             if ($pembayaran->status === 'success') {
                 Log::warning('ALREADY SUCCESS - SKIP PROCESS');
