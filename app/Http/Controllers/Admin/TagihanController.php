@@ -167,4 +167,16 @@ class TagihanController extends Controller
             ->route('admin.tagihan.index')
             ->with('success', 'Tagihan berhasil diperbarui');
     }
+
+    public function detail($pelangganId)
+    {
+        $tagihan = \App\Models\Tagihan::with('pelanggan')
+            ->where('pelanggan_id', $pelangganId)
+            ->orderBy('periode', 'desc')
+            ->get();
+
+        $pelanggan = \App\Models\Pelanggan::findOrFail($pelangganId);
+
+        return view('admin.tagihan.detail', compact('tagihan', 'pelanggan'));
+    }
 }

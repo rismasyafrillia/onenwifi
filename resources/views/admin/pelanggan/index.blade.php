@@ -5,7 +5,9 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold">Data Pelanggan</h4>
-        <a href="{{ route('admin.pelanggan.create') }}" class="btn btn-primary">
+
+        <a href="{{ route('admin.pelanggan.create') }}"
+           class="btn btn-primary">
             + Tambah Pelanggan
         </a>
     </div>
@@ -24,7 +26,7 @@
                         <th>Username</th>
                         <th>Paket</th>
                         <th>Status</th>
-                        <th width="140">Aksi</th>
+                        <th width="220">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,11 +45,22 @@
                             </span>
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $p->status == 'aktif' ? 'bg-success' : 'bg-secondary' }}">
+                            <span class="badge
+                                {{ $p->status == 'aktif'
+                                    ? 'bg-success'
+                                    : 'bg-secondary' }}">
+
                                 {{ ucfirst($p->status) }}
                             </span>
                         </td>
-                        <td class="text-center">
+
+                        <td class="text-center d-flex gap-1 justify-content-center">
+
+                            {{-- DETAIL PEMBAYARAN --}}
+                            <a href="{{ route('admin.tagihan.detail', $p->id) }}"
+                               class="btn btn-info btn-sm">
+                                Detail
+                            </a>
 
                             <a href="{{ route('admin.pelanggan.edit', $p->id) }}"
                                class="btn btn-warning btn-sm">
@@ -77,9 +90,7 @@
 
                 </tbody>
             </table>
-
         </div>
     </div>
-
 </div>
 @endsection

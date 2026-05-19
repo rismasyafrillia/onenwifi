@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Paket Internet</label>
+                        <label class="form-label">Paket Internet</label>lar
                         <input type="text"
                             class="form-control"
                             value="{{ $pelanggan->paket->nama_paket }} - Rp {{ number_format($pelanggan->paket->harga) }}"

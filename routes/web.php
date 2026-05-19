@@ -85,6 +85,8 @@ Route::prefix('admin')
         Route::get('/notifikasi/{id}', function ($id) {$notif = auth()->user()->notifications()->findOrFail($id);$notif->markAsRead();
         return redirect($notif->data['url'] ?? '/admin');})->name('notifikasi.redirect');
 
+        Route::get('/admin/tagihan/detail/{pelanggan}',[TagihanController::class, 'detail'])->name('admin.tagihan.detail');
+
         Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
